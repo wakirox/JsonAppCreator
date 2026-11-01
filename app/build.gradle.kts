@@ -282,10 +282,10 @@ dependencies {
     implementation("io.insert-koin:koin-android")
     implementation("io.coil-kt.coil3:coil-compose:3.6.3")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
-    implementation("com.squareup.okhttp3:okhttp:5.5.0")
+    implementation("com.squareup.okhttp3:okhttp:5.5.1")
     // Only for ValidatorParityTest: the app validates with the multiplatform validator in :shared.
     testImplementation("com.networknt:json-schema-validator:3.0.8")
-    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.22.3")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.22.4")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(platform("io.insert-koin:koin-bom:4.2.2"))
@@ -293,11 +293,11 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.17")
     testImplementation("androidx.test:core-ktx:1.7.0")
     testImplementation("androidx.compose.ui:ui-test-junit4")
-    testImplementation("com.squareup.okhttp3:mockwebserver:5.5.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:5.5.1")
     androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.4.0")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
