@@ -94,7 +94,7 @@ struct HomeView: View {
             presenting: deleting
         ) { app in
             Button("Delete", role: .destructive) {
-                shell.library.delete(id: app.id)
+                shell.delete(saved: app)
                 reload()
             }
         } message: { _ in

@@ -44,6 +44,10 @@ internal class EncryptedApiKeyStore(context: Context) : SecretStore {
         preferences.edit { putString(storageKey(configurationId, name), encoded) }
     }
 
+    override fun remove(configurationId: String, name: String) {
+        preferences.edit { remove(storageKey(configurationId, name)) }
+    }
+
     private fun encryptionKey(): SecretKey {
         val keyStore = KeyStore.getInstance(ANDROID_KEY_STORE).apply { load(null) }
         (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }

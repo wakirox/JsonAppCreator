@@ -139,6 +139,13 @@ final class Shell: ObservableObject {
         open(json: app.json, configurationId: app.configurationId)
     }
 
+    func delete(saved app: AppLibrary.SavedApp) {
+        library.delete(id: app.id)
+        if !library.all().contains(where: { $0.configurationId == app.configurationId }) {
+            kit.deleteKeys(configurationId: app.configurationId, json: app.json)
+        }
+    }
+
     func goHome() { path = [] }
 
     // MARK: Editor and AI

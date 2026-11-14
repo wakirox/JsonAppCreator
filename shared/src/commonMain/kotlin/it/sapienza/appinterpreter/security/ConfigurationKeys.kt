@@ -25,6 +25,12 @@ class ConfigurationKeys(
     fun saveForCurrentConfiguration(json: String, values: Map<String, String>) =
         save(currentConfigurationId(), json, values)
 
+    /** Removes every saved API key of [configurationId] declared in [json], when a saved app is deleted. */
+    fun delete(configurationId: String, json: String) {
+        if (bundledName(configurationId) != null) return
+        ApiKeyPlaceholders.names(json).forEach { name -> secrets.remove(configurationId, name) }
+    }
+
     fun availableNamesForCurrentConfiguration(json: String): Set<String> {
         val configurationId = currentConfigurationId()
         val bundledConfiguration = bundledName(configurationId)?.let(bundledValues::get).orEmpty()

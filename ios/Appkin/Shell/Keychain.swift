@@ -35,4 +35,8 @@ final class KeychainSecretStore: NSObject, SecretStore, @unchecked Sendable {
             SecItemAdd(add as CFDictionary, nil)
         }
     }
+
+    func remove(configurationId: String, name: String) {
+        SecItemDelete(query(configurationId, name) as CFDictionary)
+    }
 }
