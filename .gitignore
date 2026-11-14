@@ -30,3 +30,4 @@ secrets.properties
 google-services.json
 service-account*.json
 /dist/
+/artifacts/
