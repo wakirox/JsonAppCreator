@@ -30,14 +30,15 @@ class FetchJsonUseCase(private val client: JsonHttpClient, private val photos: P
         event.url.fillAddress(data) ?: throw MissingValueException(event.url.missingAddressPlaceholders(data).first())
 
     /** [url], already filled in (such as a list's next page), asked for as [event] says, with its headers. */
-    suspend fun fetch(url: String, event: RESTService, data: JsonObject?): JsonObject = client.request(
-        url,
-        event.method ?: CallServiceMethod.get,
-        body = data?.let {
-            withPhotos(it) as JsonObject
-        },
-        headers = headers(event, data)
-    )
+    suspend fun fetch(url: String, event: RESTService, data: JsonObject?): JsonObject {
+        val method = event.method ?: CallServiceMethod.get
+        return client.request(
+            url,
+            method,
+            body = if (method.sendsBody && data != null) withPhotos(data) as JsonObject else null,
+            headers = headers(event, data)
+        )
+    }
 
     /** [element] with each kept photo's reference replaced by the photo itself, as a data address. */
     private suspend fun withPhotos(element: JsonElement): JsonElement = when {

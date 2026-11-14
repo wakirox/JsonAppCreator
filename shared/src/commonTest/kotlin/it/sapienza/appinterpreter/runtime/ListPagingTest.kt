@@ -164,6 +164,22 @@ class ListPagingTest {
             LoadListItemsUseCase.nextUrl(next, "https://example.com/p1", withNext, 0),
             "an empty page ends the list"
         )
+        val relativeNext = JsonText.parse("""{ "info": { "next": "/p2?cursor=abc" } }""") as JsonObject
+        assertEquals(
+            "https://example.com/p2?cursor=abc",
+            LoadListItemsUseCase.nextUrl(next, "https://example.com/p1", relativeNext, 5)
+        )
+        val crossOriginNext =
+            JsonText.parse("""{ "info": { "next": "https://evil.example.org/p2" } }""") as JsonObject
+        assertNull(
+            LoadListItemsUseCase.nextUrl(next, "https://example.com/p1", crossOriginNext, 5),
+            "cross-origin pagination links are rejected"
+        )
+        val downgradeNext = JsonText.parse("""{ "info": { "next": "http://example.com/p2" } }""") as JsonObject
+        assertNull(
+            LoadListItemsUseCase.nextUrl(next, "https://example.com/p1", downgradeNext, 5),
+            "protocol downgrade pagination links are rejected"
+        )
     }
 
     @Test
