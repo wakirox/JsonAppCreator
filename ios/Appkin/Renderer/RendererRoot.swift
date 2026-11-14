@@ -8,7 +8,7 @@ final class AppSession: Hashable {
     let name: String
     let configurationId: String
     let isExample: Bool
-    let engine: IosEngine
+    nonisolated(unsafe) let engine: IosEngine
     let navigator = Navigator()
     let root = ScreenRoute(viewId: nil, payload: nil, title: nil)
 
@@ -24,6 +24,10 @@ final class AppSession: Hashable {
             photoData: { PhotoStore.data($0) }
         )
         ImageLoader.userAgent = engine.userAgent
+    }
+
+    deinit {
+        engine.close()
     }
 
     nonisolated static func == (a: AppSession, b: AppSession) -> Bool { a === b }
