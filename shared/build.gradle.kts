@@ -115,6 +115,9 @@ val generateTestFixtures by tasks.registering {
 
 kotlin.sourceSets.commonMain { kotlin.srcDir(generateSchemaSource) }
 kotlin.sourceSets.commonTest { kotlin.srcDir(generateTestFixtures) }
+tasks.matching { it.name.contains("Lint", ignoreCase = true) }.configureEach {
+    dependsOn(generateSchemaSource, generateTestFixtures)
+}
 
 // Kotlin style: ktlint (its rules and .editorconfig); any finding fails the build.
 ktlint {
