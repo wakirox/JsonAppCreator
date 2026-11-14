@@ -47,6 +47,7 @@ import it.sapienza.appinterpreter.json.sameValue
 import it.sapienza.appinterpreter.ui.AppTheme
 import it.sapienza.appinterpreter.utils.AppLibrary
 import it.sapienza.appinterpreter.utils.DomainController
+import it.sapienza.appinterpreter.utils.PrivateStorage
 import it.sapienza.appinterpreter.utils.TextHandover
 import it.sapienza.appinterpreter.utils.httpclient.HttpClient
 import it.sapienza.appinterpreter.utils.of
@@ -76,10 +77,11 @@ class EditorActivity : AppCompatActivity() {
         setTheme(R.style.AppTheme_Compose)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val newApp = intent.getBooleanExtra(EXTRA_NEW_APP, false)
+        val externalShare = intent.action == Intent.ACTION_SEND
+        val newApp = !externalShare && intent.getBooleanExtra(EXTRA_NEW_APP, false)
         // Shared from an AI app (or any app): the JSON in what was shared, if there is one.
-        val shared = incomingText() ?: if (intent.action == Intent.ACTION_SEND) sharedText() else null
-        val fromFile = intent.getBooleanExtra(EXTRA_FROM_FILE, false)
+        val shared = if (externalShare) sharedText() else incomingText()
+        val fromFile = !externalShare && intent.getBooleanExtra(EXTRA_FROM_FILE, false)
         val fromAiApp = shared?.let { AiContext.extractJson(it) }
         // A link to a shared chat instead of the answer: the chat is read to find the answer.
         val chatLink = shared?.takeIf { fromAiApp == null }?.let(ShareLinks::find)
@@ -167,7 +169,8 @@ class EditorActivity : AppCompatActivity() {
     }
 
     /** Text handed over by [aiAnswer] or [openedFile], through a file because it can be large. */
-    private fun incomingText(): String? = intent.getStringExtra(EXTRA_INCOMING_FILE)?.let(TextHandover::read)
+    private fun incomingText(): String? =
+        intent.getStringExtra(EXTRA_INCOMING_FILE)?.let { TextHandover.read(this, it) }
 
     private fun sameJson(a: String, b: String): Boolean =
         runCatching { JsonText.sameValue(JsonText.parse(a), JsonText.parse(b)) }.getOrDefault(false)
@@ -176,6 +179,7 @@ class EditorActivity : AppCompatActivity() {
     private fun sharedText(): String? {
         intent.getStringExtra(Intent.EXTRA_TEXT)?.let { return it }
         val uri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java) ?: return null
+        if (PrivateStorage.isPrivateFileUri(this, uri)) return null
         return runCatching { contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } }.getOrNull()
     }
 
