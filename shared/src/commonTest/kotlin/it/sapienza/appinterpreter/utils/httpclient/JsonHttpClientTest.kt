@@ -10,6 +10,8 @@ import it.sapienza.appinterpreter.model.event.CallServiceMethod
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
 import kotlinx.serialization.json.JsonObject
@@ -124,5 +126,84 @@ class JsonHttpClientTest {
                 client(HttpStatusCode.NotFound).request("https://e.com", false, null)
             }.status
         )
+    }
+
+    @Test
+    fun redirectsKeepHeadersOnSameOriginAndStripThemCrossOrigin() = runTest {
+        val redirectClient = JsonHttpClient(
+            MockEngine { request ->
+                requests += "${request.method.value} ${request.url}"
+                headers += request.headers.names().associateWith { request.headers[it].orEmpty() }
+                when (request.url.toString()) {
+                    "https://example.com/same" -> respond(
+                        "",
+                        HttpStatusCode.Found,
+                        headersOf(HttpHeaders.Location, "/target")
+                    )
+
+                    "https://example.com/cross" -> respond(
+                        "",
+                        HttpStatusCode.Found,
+                        headersOf(HttpHeaders.Location, "https://other.example.org/target")
+                    )
+
+                    "https://example.com/downgrade" -> respond(
+                        "",
+                        HttpStatusCode.Found,
+                        headersOf(HttpHeaders.Location, "http://example.com/target")
+                    )
+
+                    else -> respond(
+                        """{"ok":true}""",
+                        HttpStatusCode.OK,
+                        headersOf(HttpHeaders.ContentType, "application/json")
+                    )
+                }
+            },
+            JsonHttpClient.userAgent("1.2", "Test")
+        )
+
+        redirectClient.request(
+            "https://example.com/same",
+            CallServiceMethod.get,
+            null,
+            mapOf("Authorization" to "Bearer secret")
+        )
+        assertEquals("GET https://example.com/target", requests.last())
+        assertEquals("Bearer secret", headers.last()["Authorization"])
+
+        redirectClient.request(
+            "https://example.com/cross",
+            CallServiceMethod.get,
+            null,
+            mapOf("Authorization" to "Bearer secret")
+        )
+        assertEquals("GET https://other.example.org/target", requests.last())
+        assertNull(headers.last()["Authorization"])
+
+        val downgradeError = assertFailsWith<IOException> {
+            redirectClient.request("https://example.com/downgrade", CallServiceMethod.get, null)
+        }
+        assertTrue(downgradeError.message.orEmpty().contains("HTTPS to HTTP"))
+    }
+
+    @Test
+    fun responsesLargerThanCapFailCleanly() = runTest {
+        val cappedClient = JsonHttpClient(
+            MockEngine {
+                respond(
+                    """{"payload":"0123456789abcdef"}""",
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            },
+            JsonHttpClient.userAgent("1.2", "Test"),
+            maxResponseBytes = 10
+        )
+
+        val error = assertFailsWith<IOException> {
+            cappedClient.request("https://example.com/big", false, null)
+        }
+        assertTrue(error.message.orEmpty().contains("exceeds the maximum supported size"))
     }
 }

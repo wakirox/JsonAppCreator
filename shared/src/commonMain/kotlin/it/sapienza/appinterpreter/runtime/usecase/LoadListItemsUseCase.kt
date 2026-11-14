@@ -1,5 +1,8 @@
 package it.sapienza.appinterpreter.runtime.usecase
 
+import io.ktor.http.URLBuilder
+import io.ktor.http.Url
+import io.ktor.http.takeFrom
 import it.sapienza.appinterpreter.json.JsonText
 import it.sapienza.appinterpreter.json.getArray
 import it.sapienza.appinterpreter.json.getValue
@@ -88,12 +91,22 @@ class LoadListItemsUseCase(private val fetchJson: FetchJsonUseCase, private val 
         fun nextUrl(next: NextPage, url: String, response: JsonObject, count: Int): String? {
             if (count == 0) return null
             next.urlFrom?.let { path ->
-                return response.getValue(path)?.trim()?.takeIf { it.isNotEmpty() && it != url }
+                val candidate = response.getValue(path)?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+                return resolveSameOriginNextUrl(url, candidate)
             }
             val parameter = next.parameter?.takeIf { it.isNotBlank() } ?: return null
             val step = next.step?.takeIf { it > 0 } ?: return null
             if (count < step) return null
             return withParameter(url, parameter, (parameterValue(url, parameter) ?: 0) + step)
+        }
+
+        private fun resolveSameOriginNextUrl(currentUrl: String, candidate: String): String? {
+            val base = runCatching { Url(currentUrl) }.getOrNull() ?: return null
+            val target = runCatching { URLBuilder(base).takeFrom(candidate).build() }.getOrNull() ?: return null
+            val sameOrigin = target.protocol == base.protocol &&
+                target.host.equals(base.host, ignoreCase = true) &&
+                target.port == base.port
+            return target.toString().takeIf { sameOrigin && it != currentUrl }
         }
 
         private fun parameterValue(url: String, name: String): Int? =
