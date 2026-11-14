@@ -92,7 +92,7 @@ jobs:
 
   test-ios:
     name: Test and build iOS
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 45
 
     steps:
@@ -118,6 +118,9 @@ jobs:
 
       - name: Generate Xcode project
         run: |
+          if [ -d /Applications/Xcode_27.2.app ]; then
+            sudo xcode-select -s /Applications/Xcode_27.2.app
+          fi
           command -v xcodegen >/dev/null || HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen
           cd ios
           xcodegen generate
@@ -126,19 +129,24 @@ jobs:
         run: |
           sim_id=$(/usr/bin/python3 - <<'PY'
           import json, re, subprocess, sys
+          sdk_raw = subprocess.check_output(["xcrun", "--sdk", "iphonesimulator", "--show-sdk-version"], text=True).strip()
+          sdk_ver = [int(x) for x in re.findall(r"\d+", sdk_raw)]
           data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True))
           candidates = []
           for runtime, devices in data.get("devices", {}).items():
               if "iOS" not in runtime:
                   continue
               ver = [int(x) for x in re.findall(r"\d+", runtime.split("iOS")[-1])]
+              if ver > sdk_ver:
+                  continue
               for dev in devices:
-                  if dev.get("isAvailable") and "iPhone" in dev.get("name", ""):
-                      candidates.append((ver, dev["name"], dev["udid"]))
+                  name = dev.get("name", "")
+                  if dev.get("isAvailable") and "iPhone" in name:
+                      candidates.append((ver, "Duo" not in name, "Pro" in name, name, dev["udid"]))
           if not candidates:
               sys.exit("No available iPhone simulator found")
-          candidates.sort(key=lambda item: (item[0], "Pro" in item[1]), reverse=True)
-          print(candidates[0][2])
+          candidates.sort(reverse=True)
+          print(candidates[0][4])
           PY
           )
           xcodebuild build-for-testing \
