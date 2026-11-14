@@ -47,4 +47,21 @@ class ConfigurationKeysTest {
         assertEquals("second", values["other"]?.get("SERVICE_TOKEN"))
         assertEquals(emptyMap(), ConfigurationKeys.decodeBundledValues(""))
     }
+
+    @Test
+    fun deletingConfigurationRemovesOnlyItsSavedSecrets() {
+        current = "file:app-one"
+        keys.saveForCurrentConfiguration(json, mapOf("SEARCH_KEY" to "one-search", "OTHER_KEY" to "one-other"))
+        current = "file:app-two"
+        keys.saveForCurrentConfiguration(json, mapOf("SEARCH_KEY" to "two-search"))
+
+        keys.delete("file:app-one", json)
+
+        current = "file:app-one"
+        assertEquals(emptySet(), keys.availableNamesForCurrentConfiguration(json))
+        current = "file:app-two"
+        assertEquals(setOf("SEARCH_KEY"), keys.availableNamesForCurrentConfiguration(json))
+        current = "bundled:v3_the_movie_db"
+        assertEquals(setOf("SEARCH_KEY"), keys.availableNamesForCurrentConfiguration(json))
+    }
 }

@@ -26,6 +26,8 @@ object ConfigurationApiKeys {
     fun saveForCurrentConfiguration(json: String, values: Map<String, String>) =
         keys.saveForCurrentConfiguration(json, values)
 
+    fun delete(configurationId: String, json: String) = keys.delete(configurationId, json)
+
     fun availableNamesForCurrentConfiguration(json: String): Set<String> =
         keys.availableNamesForCurrentConfiguration(json)
 

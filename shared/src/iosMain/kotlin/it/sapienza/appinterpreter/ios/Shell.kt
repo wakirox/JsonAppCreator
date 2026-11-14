@@ -115,6 +115,9 @@ class ShellKit(private val secrets: SecretStore, bundledKeys: String = "") {
     fun saveKeys(json: String, configurationId: String, values: Map<String, String>) =
         ConfigurationKeys(secrets, bundled) { configurationId }.saveForCurrentConfiguration(json, values)
 
+    fun deleteKeys(configurationId: String, json: String) =
+        ConfigurationKeys(secrets, bundled) { configurationId }.delete(configurationId, json)
+
     // Ask your AI app
 
     var shortInstructions: Boolean

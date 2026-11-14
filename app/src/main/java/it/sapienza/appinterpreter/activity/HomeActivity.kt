@@ -77,6 +77,7 @@ import it.sapienza.androidratio.appratio.R
 import it.sapienza.appinterpreter.ai.AskAi
 import it.sapienza.appinterpreter.json.JsonText
 import it.sapienza.appinterpreter.json.optString
+import it.sapienza.appinterpreter.security.ConfigurationApiKeys
 import it.sapienza.appinterpreter.ui.ActionMenuItem
 import it.sapienza.appinterpreter.ui.AppIconView
 import it.sapienza.appinterpreter.ui.AppTheme
@@ -357,7 +358,11 @@ class HomeActivity : AppCompatActivity() {
                             TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                                 AppLibrary.of(this).delete(app.id)
                                 HomeShortcuts(this).disable(app.id)
-                                apps = AppLibrary.of(this).all()
+                                val remaining = AppLibrary.of(this).all()
+                                if (remaining.none { it.configurationId == app.configurationId }) {
+                                    ConfigurationApiKeys.delete(app.configurationId, app.json)
+                                }
+                                apps = remaining
                                 deleting = null
                             }) { Text(stringResource(R.string.home_delete), color = MaterialTheme.colorScheme.error) }
                         },
