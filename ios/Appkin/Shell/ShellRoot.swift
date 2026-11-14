@@ -34,12 +34,17 @@ struct ShellRoot: View {
         } message: { notice in
             Text(notice.message)
         }
-        .task { launchHooks() }
+        .task {
+            let kept = shell.kit.keptPhotoReferences()
+            Task.detached(priority: .utility) { PhotoStore.deleteUnused(keeping: kept) }
+            launchHooks()
+        }
         .environmentObject(shell)
     }
 
     /// Launch arguments that open something straight away, for tests and screenshots.
     private func launchHooks() {
+        #if DEBUG
         let defaults = UserDefaults.standard
         if defaults.string(forKey: "screen") == "run",
            let example = Example.all.first(where: { $0.id == defaults.string(forKey: "example") }) {
@@ -54,6 +59,7 @@ struct ShellRoot: View {
         case "editor": shell.newApp()
         default: break
         }
+        #endif
     }
 }
 

@@ -72,6 +72,17 @@ enum PhotoStore {
         try? FileManager.default.removeItem(at: copies.appending(path: name))
     }
 
+    /// Deletes photo files that no saved collection item refers to any more.
+    static func deleteUnused(keeping used: Set<String>) {
+        let keptNames = Set(used.compactMap(fileName))
+        for dir in [folder, copies] {
+            guard let names = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { continue }
+            for name in names where name.hasSuffix(".jpg") && !keptNames.contains(name) {
+                try? FileManager.default.removeItem(at: dir.appending(path: name))
+            }
+        }
+    }
+
     /// The picture scaled down to `side` px on its longer edge (never up), upright, as a JPEG without its metadata.
     private static func jpeg(_ source: CGImageSource, side: Int) -> Data? {
         let options: [CFString: Any] = [

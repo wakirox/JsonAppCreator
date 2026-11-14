@@ -7,7 +7,7 @@ import it.sapienza.appinterpreter.alerts.AlertsViewModel
 import it.sapienza.appinterpreter.calendar.CreateCalendarEventUseCase
 import it.sapienza.appinterpreter.runtime.AppRepository
 import it.sapienza.appinterpreter.runtime.CurrentConfiguration
-import it.sapienza.appinterpreter.runtime.EnglishRuntimeStrings
+import it.sapienza.appinterpreter.runtime.RuntimeStrings
 import it.sapienza.appinterpreter.runtime.ScreenViewModel
 import it.sapienza.appinterpreter.runtime.usecase.DeleteItemsUseCase
 import it.sapienza.appinterpreter.runtime.usecase.FetchJsonUseCase
@@ -30,6 +30,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.cancel
+import platform.Foundation.NSBundle
 import platform.Foundation.NSData
 import platform.posix.memcpy
 
@@ -52,13 +53,15 @@ class IosEngine(
     val userAgent: String = JsonHttpClient.userAgent(versionName, platform)
 
     private val photos = PhotoReader { reference -> photoData(reference)?.toByteArray() }
-    private val strings = EnglishRuntimeStrings
+    private val strings: RuntimeStrings = IosRuntimeStrings
     private val current = CurrentConfiguration { json }
     private val repository = AppRepository(current, ValidatedConfigurationParser(SharedValidator.validator))
     private val keys =
         ConfigurationKeys(secrets, ConfigurationKeys.decodeBundledValues(bundledKeys)) { configurationId }
     private val httpClient = JsonHttpClient(
-        Darwin.create(),
+        Darwin.create {
+            configureRequest { setTimeoutInterval(30.0) }
+        },
         userAgent,
         keys::replaceForCurrentConfiguration,
         keys::replaceInHeaderForCurrentConfiguration
@@ -99,9 +102,55 @@ class IosEngine(
 
     /** Ends [screen]'s requests: call it when the screen is gone. */
     fun dispose(screen: ScreenViewModel) = screen.viewModelScope.cancel()
+
+    /** Closes the app session's underlying Darwin HTTP client and invalidates its URLSession. */
+    fun close() = httpClient.close()
 }
 
 @OptIn(ExperimentalForeignApi::class)
 private fun NSData.toByteArray(): ByteArray = ByteArray(length.toInt()).also { bytes ->
     if (bytes.isNotEmpty()) bytes.usePinned { memcpy(it.addressOf(0), this.bytes, length) }
+}
+
+private object IosRuntimeStrings : RuntimeStrings {
+    private fun text(english: String): String =
+        NSBundle.mainBundle.localizedStringForKey(english, value = english, table = null)
+
+    override fun viewMissing(id: String) = text("View '%@' does not exist in this configuration").replace("%@", id)
+
+    override fun configurationInvalid(detail: String) = "${text("The saved configuration is invalid")}\n$detail"
+
+    override val errorUnrecognized get() = text("Unrecognized error")
+
+    override fun screenDataUnrestorable(detail: String) = "${text("Unable to restore screen data")}\n$detail"
+
+    override fun valueMissing(path: String) = text("This item has no %@").replace("%@", path)
+
+    override fun linkNotAllowed(url: String) =
+        text("Appkin only opens web, map, phone and email addresses, not %@").replace("%@", url)
+
+    override val errorOccurred get() = text("An error occurred")
+
+    override val alertWithoutMessage get() = text("This alert has no message")
+
+    override fun formIncomplete(fields: String) = text("Please complete: %@").replace("%@", fields)
+
+    override val itemNoLongerSaved get() = text("Nothing to change: this item is no longer saved")
+
+    override fun calendarBadDate(value: String) =
+        text("The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"%@\".").replace("%@", value)
+
+    override val loadFailedOffline get() =
+        text("Unable to load data. Check your connection and try again.")
+
+    override fun loadFailed(detail: String) = "${text("Unable to load data.")} $detail"
+
+    override fun requestFailed(status: Int) = text("Request failed with %@").replace("%@", status.toString())
+
+    override fun imageDoesNotLoad(status: Int?, url: String): String {
+        val reason = status?.let { text("error %@").replace("%@", it.toString()) } ?: text("no answer")
+        return text("This image doesn't load (%1$@): %2$@. Check the address, or use another picture")
+            .replace("%1$@", reason)
+            .replace("%2$@", url)
+    }
 }
