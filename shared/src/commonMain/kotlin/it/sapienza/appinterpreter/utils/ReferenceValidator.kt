@@ -130,6 +130,7 @@ internal class ReferenceValidator {
         val node = element as? JsonObject ?: fail(path, "event must be an object")
         node["view"]?.let { visitView(it, "$path.view", parentId = null) }
         node["thenDo"]?.let { visitEvent(it, "$path.thenDo") }
+        node["onError"]?.let { visitEvent(it, "$path.onError") }
         node["thenDoOK"]?.let { visitEvent(it, "$path.thenDoOK") }
         node["thenDoKO"]?.let { visitEvent(it, "$path.thenDoKO") }
     }

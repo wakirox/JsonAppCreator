@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonObject
 
 /** What an action does, chosen by its "type". */
 @Serializable(with = EventSerializer::class)
-abstract class Event {
+sealed class Event {
     abstract val mapping: String?
     abstract val data: JsonObject?
 }
@@ -58,7 +58,7 @@ class ShareText(
 ) : Event()
 
 /** Fills lists with data from a service, then runs [thenDo]. */
-abstract class DataService : Event() {
+sealed class DataService : Event() {
     abstract val thenDo: Event?
 }
 

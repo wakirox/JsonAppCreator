@@ -110,5 +110,9 @@ class JsonTextTest {
         assertEquals("1000.0", JsonNumbers.display("1e3"))
         assertEquals("42", JsonNumbers.display("42"))
         assertEquals("0.1", JsonText.withDoubleNumbers(JsonText.parse("[0.10]")!!).jsonArray[0].jsonPrimitive.content)
+        assertEquals("1E+999999999999", JsonNumbers.exact("1e999999999999"))
+        assertEquals("1E-999999999999", JsonNumbers.exact("1e-999999999999"))
+        assertEquals("1e999999999999999999999", JsonNumbers.exact("1e999999999999999999999"))
+        assertEquals("[\n  1E+999999999999\n]", JsonText.pretty(JsonText.parse("[1e999999999999]")!!))
     }
 }
