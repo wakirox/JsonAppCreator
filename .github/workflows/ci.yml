@@ -40,31 +40,31 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
-      - name: Kotlin style (ktlint)
-        run: ./gradlew --no-daemon ktlintCheck
+      - name: Kotlin style, KMP iOS, and androidTest compile
+        run: ./gradlew ktlintCheck :shared:compileKotlinIosArm64 :app:compileDebugAndroidTestKotlin
 
       - name: Run unit and screenshot tests
-        run: ./gradlew --no-daemon :shared:testAndroidHostTest :app:testDebugUnitTest
+        run: ./gradlew :shared:testAndroidHostTest :app:testDebugUnitTest
 
       - name: Lint (debug)
         # Any warning fails; :shared is checked with the app. One variant per run: two in one run can crash lint.
-        run: ./gradlew --no-daemon :app:lintDebug
+        run: ./gradlew :app:lintDebug
 
       - name: Lint (release)
-        run: ./gradlew --no-daemon :app:lintRelease
+        run: ./gradlew :app:lintRelease
 
       - name: Validate example configuration
-        run: ./gradlew --no-daemon :app:validateConfig -Pconfig=examples/v3_static_catalog.json
+        run: ./gradlew :app:validateConfig -Pconfig=examples/v3_static_catalog.json
 
       - name: Build debug APK
         env:
           APP_CONFIG_KEYS_BASE64: ${{ secrets.APP_CONFIG_KEYS_BASE64 }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-        run: ./gradlew --no-daemon :app:assembleDebug
+        run: ./gradlew :app:assembleDebug
 
       - name: Build the minified release (R8)
         # Unsigned here: it checks that R8 builds the release the stores get.
-        run: ./gradlew --no-daemon :app:assembleRelease
+        run: ./gradlew :app:assembleRelease
 
       - name: Upload debug APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -84,5 +84,80 @@ jobs:
             app/build/reports/lint-results-*.html
             app/build/test-results/
             app/build/outputs/tmdb-screenshots/
+            shared/build/reports/tests/
+            shared/build/test-results/
+            **/build/reports/ktlint/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  test-ios:
+    name: Test and build iOS
+    runs-on: macos-26
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Run shared iOS simulator unit tests
+        run: ./gradlew :shared:iosSimulatorArm64Test
+
+      - name: Generate Xcode project
+        run: |
+          command -v xcodegen >/dev/null || HOMEBREW_NO_AUTO_UPDATE=1 brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Build and test iOS app
+        run: |
+          sim_id=$(/usr/bin/python3 - <<'PY'
+          import json, re, subprocess, sys
+          data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True))
+          candidates = []
+          for runtime, devices in data.get("devices", {}).items():
+              if "iOS" not in runtime:
+                  continue
+              ver = [int(x) for x in re.findall(r"\d+", runtime.split("iOS")[-1])]
+              for dev in devices:
+                  if dev.get("isAvailable") and "iPhone" in dev.get("name", ""):
+                      candidates.append((ver, dev["name"], dev["udid"]))
+          if not candidates:
+              sys.exit("No available iPhone simulator found")
+          candidates.sort(key=lambda item: (item[0], "Pro" in item[1]), reverse=True)
+          print(candidates[0][2])
+          PY
+          )
+          xcodebuild build-for-testing \
+            -project ios/Appkin.xcodeproj \
+            -scheme Appkin \
+            -destination "platform=iOS Simulator,id=$sim_id"
+          xcodebuild test-without-building \
+            -project ios/Appkin.xcodeproj \
+            -scheme Appkin \
+            -destination "platform=iOS Simulator,id=$sim_id" \
+            -only-testing:AppkinTests
+
+      - name: Upload failed shared iOS test reports
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ios-test-reports-${{ github.run_id }}
+          path: |
+            shared/build/reports/tests/
+            shared/build/test-results/
           if-no-files-found: ignore
           retention-days: 7
