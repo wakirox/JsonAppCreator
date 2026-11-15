@@ -98,13 +98,34 @@ final class ScreenModel: ObservableObject {
         }
     }
 
-    /// The address the system opens: a `geo:` link (Android's) becomes a search in Apple Maps.
-    private static func systemURL(_ address: String) -> URL? {
-        guard address.hasPrefix("geo:") else { return imageURL(address) }
-        guard let query = address.split(separator: "?", maxSplits: 1).dropFirst().first,
-              let place = query.split(separator: "&").first(where: { $0.hasPrefix("q=") })?.dropFirst(2) else { return nil }
+    /// The address the system opens: a `geo:` link (Android's) becomes a search or coordinate pin in Apple Maps.
+    static func systemURL(_ address: String) -> URL? {
+        let trimmed = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.lowercased().hasPrefix("geo:") else { return imageURL(trimmed) }
+        let body = String(trimmed.dropFirst(4))
+        let parts = body.split(separator: "?", maxSplits: 1, omittingEmptySubsequences: false)
+        let coordinatesPart = parts.first.map(String.init) ?? ""
+        let queryPart = parts.count > 1 ? String(parts[1]) : nil
+
+        if let queryPart,
+           let place = queryPart.split(separator: "&").first(where: { $0.hasPrefix("q=") })?.dropFirst(2) {
+            let plusDecoded = String(place).replacingOccurrences(of: "+", with: " ")
+            let decoded = plusDecoded.removingPercentEncoding ?? plusDecoded
+            if !decoded.isEmpty {
+                var components = URLComponents(string: "https://maps.apple.com/")
+                components?.queryItems = [URLQueryItem(name: "q", value: decoded)]
+                return components?.url
+            }
+        }
+
+        let rawCoordinates = coordinatesPart.split(separator: ";", maxSplits: 1).first.map(String.init) ?? ""
+        let numbers = rawCoordinates.split(separator: ",")
+        guard numbers.count >= 2,
+              let lat = Double(numbers[0].trimmingCharacters(in: .whitespaces)),
+              let lon = Double(numbers[1].trimmingCharacters(in: .whitespaces)),
+              lat.isFinite, lon.isFinite, (-90...90).contains(lat), (-180...180).contains(lon) else { return nil }
         var components = URLComponents(string: "https://maps.apple.com/")
-        components?.queryItems = [URLQueryItem(name: "q", value: String(place).removingPercentEncoding ?? String(place))]
+        components?.queryItems = [URLQueryItem(name: "ll", value: "\(lat),\(lon)")]
         return components?.url
     }
 }
