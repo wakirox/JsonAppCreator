@@ -276,7 +276,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material-icons-core")
     // 1.5 makes Material 3 Expressive (MaterialExpressiveTheme, MotionScheme) public; 1.4 keeps it internal.
-    implementation("androidx.compose.material3:material3:1.5.0-beta01")
+    implementation("androidx.compose.material3:material3:1.5.0-beta02")
 
     implementation(platform("io.insert-koin:koin-bom:4.2.2"))
     implementation("io.insert-koin:koin-android")
