@@ -33,13 +33,19 @@ class AppRatioApplication :
             androidContext(this@AppRatioApplication)
             modules(appModule)
         }
-        ImageCacheExpiry(SharedPreferencesStore(this, "ImageCache")) {
-            SingletonImageLoader.get(this).diskCache?.clear()
-        }.check()
-        // Photos no saved data refers to any more (their item was deleted, say) are removed, away from the main thread.
+        // Expired image cache entries and unreferenced photos are swept away from the main thread, each step on its own.
         thread(name = "photo-cleanup") {
-            val saved = SharedPreferencesStore(this, "AppData")
-            PhotoStore(this).deleteUnused(Photos.referencesIn(saved.keys().joinToString { saved.get(it).orEmpty() }))
+            runCatching {
+                ImageCacheExpiry(SharedPreferencesStore(this, "ImageCache")) {
+                    SingletonImageLoader.get(this).diskCache?.clear()
+                }.check()
+            }
+            runCatching {
+                val saved = SharedPreferencesStore(this, "AppData")
+                PhotoStore(this).deleteUnused(
+                    Photos.referencesIn(saved.keys().joinToString { saved.get(it).orEmpty() })
+                )
+            }
         }
     }
 

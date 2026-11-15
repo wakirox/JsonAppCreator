@@ -246,6 +246,16 @@
         }
       }
     },
+    "An error occurred": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An error occurred"
+          }
+        }
+      }
+    },
     "App": {
       "localizations": {
         "en": {
@@ -292,6 +302,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appkin has no AI inside, and sends nothing anywhere else."
+          }
+        }
+      }
+    },
+    "Appkin only opens web, map, phone and email addresses, not %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin only opens web, map, phone and email addresses, not %@"
           }
         }
       }
@@ -516,12 +536,32 @@
         }
       }
     },
+    "Copy the AI's JSON answer directly in your AI app, then paste it here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the AI's JSON answer directly in your AI app, then paste it here."
+          }
+        }
+      }
+    },
     "Couldn't open the file": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn't open the file"
+          }
+        }
+      }
+    },
+    "Couldn't read the shared chat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the shared chat"
           }
         }
       }
@@ -1066,6 +1106,16 @@
         }
       }
     },
+    "Nothing to change: this item is no longer saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to change: this item is no longer saved"
+          }
+        }
+      }
+    },
     "Nothing to paste": {
       "localizations": {
         "en": {
@@ -1206,6 +1256,16 @@
         }
       }
     },
+    "Please complete: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please complete: %@"
+          }
+        }
+      }
+    },
     "Popular films and the people in them, from TMDB": {
       "localizations": {
         "en": {
@@ -1222,6 +1282,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Questions, or an app or its content to report: %@"
+          }
+        }
+      }
+    },
+    "Read from %@ shared chat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read from %@ shared chat"
           }
         }
       }
@@ -1262,6 +1332,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Report a problem"
+          }
+        }
+      }
+    },
+    "Request failed with %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request failed with %@"
           }
         }
       }
@@ -1456,12 +1536,32 @@
         }
       }
     },
+    "The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"%@\".": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"%@\"."
+          }
+        }
+      }
+    },
     "The rules and a list of every property, with links to the details: shorter, for AI apps that can open links.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The rules and a list of every property, with links to the details: shorter, for AI apps that can open links."
+          }
+        }
+      }
+    },
+    "The saved configuration is invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved configuration is invalid"
           }
         }
       }
@@ -1476,12 +1576,42 @@
         }
       }
     },
+    "This alert has no message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This alert has no message"
+          }
+        }
+      }
+    },
     "This app hasn't been opened or saved.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "This app hasn't been opened or saved."
+          }
+        }
+      }
+    },
+    "This image doesn't load (%1$@): %2$@. Check the address, or use another picture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This image doesn't load (%1$@): %2$@. Check the address, or use another picture"
+          }
+        }
+      }
+    },
+    "This item has no %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This item has no %@"
           }
         }
       }
@@ -1516,12 +1646,52 @@
         }
       }
     },
+    "Unable to load data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load data."
+          }
+        }
+      }
+    },
+    "Unable to load data. Check your connection and try again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load data. Check your connection and try again."
+          }
+        }
+      }
+    },
     "Unable to read the selected file": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Unable to read the selected file"
+          }
+        }
+      }
+    },
+    "Unable to restore screen data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to restore screen data"
+          }
+        }
+      }
+    },
+    "Unrecognized error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unrecognized error"
           }
         }
       }
@@ -1552,6 +1722,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version %@"
+          }
+        }
+      }
+    },
+    "View '%@' does not exist in this configuration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View '%@' does not exist in this configuration"
           }
         }
       }
@@ -1672,6 +1852,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your edits haven't been opened or saved."
+          }
+        }
+      }
+    },
+    "error %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "error %@"
+          }
+        }
+      }
+    },
+    "no answer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no answer"
           }
         }
       }

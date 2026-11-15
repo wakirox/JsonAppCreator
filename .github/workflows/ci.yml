@@ -29,45 +29,46 @@ jobs:
           persist-credentials: false
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
 
       - name: Set up JDK 17
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
 
-      - name: Kotlin style (ktlint)
-        run: ./gradlew --no-daemon ktlintCheck
+      - name: Kotlin style, KMP iOS, and androidTest compile
+        run: ./gradlew ktlintCheck :shared:compileKotlinIosArm64 :app:compileDebugAndroidTestKotlin
 
       - name: Run unit and screenshot tests
-        run: ./gradlew --no-daemon :shared:testAndroidHostTest :app:testDebugUnitTest
+        run: ./gradlew :shared:testAndroidHostTest :app:testDebugUnitTest
 
       - name: Lint (debug)
-        # Any warning fails; :shared is checked with the app. One variant per run: two in one run can crash lint.
+        # Any warning fails; :shared is checked with the app. One variant per Gradle daemon: two in one run can crash lint,
+        # so both lint steps use --no-daemon (the other steps reuse the daemon for speed).
         run: ./gradlew --no-daemon :app:lintDebug
 
       - name: Lint (release)
         run: ./gradlew --no-daemon :app:lintRelease
 
       - name: Validate example configuration
-        run: ./gradlew --no-daemon :app:validateConfig -Pconfig=examples/v3_static_catalog.json
+        run: ./gradlew :app:validateConfig -Pconfig=examples/v3_static_catalog.json
 
       - name: Build debug APK
         env:
           APP_CONFIG_KEYS_BASE64: ${{ secrets.APP_CONFIG_KEYS_BASE64 }}
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-        run: ./gradlew --no-daemon :app:assembleDebug
+        run: ./gradlew :app:assembleDebug
 
       - name: Build the minified release (R8)
         # Unsigned here: it checks that R8 builds the release the stores get.
-        run: ./gradlew --no-daemon :app:assembleRelease
+        run: ./gradlew :app:assembleRelease
 
       - name: Upload debug APK
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Appkin-debug-${{ github.sha }}
           path: app/build/outputs/apk/debug/app-debug.apk
@@ -76,7 +77,7 @@ jobs:
 
       - name: Upload failed test reports
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-reports-${{ github.run_id }}
           path: |
@@ -84,5 +85,146 @@ jobs:
             app/build/reports/lint-results-*.html
             app/build/test-results/
             app/build/outputs/tmdb-screenshots/
+            shared/build/reports/tests/
+            shared/build/test-results/
+            **/build/reports/ktlint/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # Cheap ubuntu job so the iOS check always reports (a skipped job counts as passing for required checks;
+  # workflow-level `paths:` filters would leave it pending). Hosted macOS is billed about 10x.
+  changes:
+    name: Detect iOS-relevant changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Compare with the base
+        id: filter
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # iOS-relevant: ios/, shared/, Gradle build files that affect shared, and the workflows.
+          pattern='^(ios/|shared/|gradle/|build\.gradle\.kts$|settings\.gradle\.kts$|gradle\.properties$|gradlew(\.bat)?$|\.github/workflows/(ci|release)\.yml$)'
+          changed=true
+          if [ "$EVENT" != workflow_dispatch ] && [ -n "$BASE_SHA" ] && git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+            if git diff --name-only "$BASE_SHA" HEAD | grep -Eq "$pattern"; then changed=true; else changed=false; fi
+          fi
+          echo "ios=$changed" >> "$GITHUB_OUTPUT"
+          echo "iOS-relevant changes: $changed"
+
+  test-ios:
+    name: Test and build iOS
+    needs: changes
+    if: needs.changes.outputs.ios == 'true'
+    runs-on: xcode-27
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Run shared iOS simulator unit tests
+        run: ./gradlew :shared:iosSimulatorArm64Test
+
+      - name: Select Xcode
+        run: |
+          if [ -d /Applications/Xcode_27.2.app ]; then
+            sudo xcode-select -s /Applications/Xcode_27.2.app
+          else
+            echo "::error::/Applications/Xcode_27.2.app not found. Installed:"
+            ls -d /Applications/Xcode*.app || true
+            exit 1
+          fi
+          xcodebuild -version
+
+      - name: Install XcodeGen (pinned)
+        env:
+          XCODEGEN_VERSION: 2.46.0
+          XCODEGEN_SHA256: 4d9e34b62172d645eed6457cac13fc222569974098ef4ee9c3368bedf0196806
+        run: |
+          if command -v xcodegen >/dev/null && [ "$(xcodegen --version | grep -Eo '[0-9]+(\.[0-9]+)+' | head -1)" = "$XCODEGEN_VERSION" ]; then
+            echo "XcodeGen $XCODEGEN_VERSION already installed"
+          else
+            curl -fsSL -o "$RUNNER_TEMP/xcodegen.zip" "https://github.com/yonaskolb/XcodeGen/releases/download/$XCODEGEN_VERSION/xcodegen.zip"
+            echo "$XCODEGEN_SHA256  $RUNNER_TEMP/xcodegen.zip" | shasum -a 256 -c -
+            unzip -q -o "$RUNNER_TEMP/xcodegen.zip" -d "$RUNNER_TEMP"
+            echo "$RUNNER_TEMP/xcodegen/bin" >> "$GITHUB_PATH"
+          fi
+
+      - name: Generate Xcode project
+        run: |
+          cd ios
+          xcodegen generate
+
+      - name: Build and test iOS app
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/ios-results"
+          sim_id=$(/usr/bin/python3 - <<'PY'
+          import json, re, subprocess, sys
+          sdk_raw = subprocess.check_output(["xcrun", "--sdk", "iphonesimulator", "--show-sdk-version"], text=True).strip()
+          sdk_ver = [int(x) for x in re.findall(r"\d+", sdk_raw)]
+          data = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"], text=True))
+          candidates = []
+          for runtime, devices in data.get("devices", {}).items():
+              if "iOS" not in runtime:
+                  continue
+              ver = [int(x) for x in re.findall(r"\d+", runtime.split("iOS")[-1])]
+              if ver > sdk_ver:
+                  continue
+              for dev in devices:
+                  name = dev.get("name", "")
+                  if dev.get("isAvailable") and "iPhone" in name:
+                      candidates.append((ver, "Duo" not in name, "Pro" in name, name, dev["udid"]))
+          if not candidates:
+              sys.exit("No available iPhone simulator found")
+          candidates.sort(reverse=True)
+          print(candidates[0][4])
+          PY
+          )
+          xcodebuild build-for-testing \
+            -project ios/Appkin.xcodeproj \
+            -scheme Appkin \
+            -destination "platform=iOS Simulator,id=$sim_id" \
+            -resultBundlePath "$RUNNER_TEMP/ios-results/build.xcresult" 2>&1 | tee "$RUNNER_TEMP/ios-results/build.log"
+          xcodebuild test-without-building \
+            -project ios/Appkin.xcodeproj \
+            -scheme Appkin \
+            -destination "platform=iOS Simulator,id=$sim_id" \
+            -only-testing:AppkinTests \
+            -resultBundlePath "$RUNNER_TEMP/ios-results/test.xcresult" 2>&1 | tee "$RUNNER_TEMP/ios-results/test.log"
+
+      - name: Upload failed shared iOS test reports
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-test-reports-${{ github.run_id }}
+          path: |
+            shared/build/reports/tests/
+            shared/build/test-results/
+            ${{ runner.temp }}/ios-results/
           if-no-files-found: ignore
           retention-days: 7

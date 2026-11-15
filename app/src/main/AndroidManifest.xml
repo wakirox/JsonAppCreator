@@ -17,9 +17,9 @@
         <activity
                 android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
                 android:name="it.sapienza.appinterpreter.activity.MainActivity"
-                android:exported="true"
+                android:exported="false"
                 />
-        <!-- The home page, opened from the launcher. Home-screen shortcuts open MainActivity directly. -->
+        <!-- The home page, opened from the launcher and from pinned home-screen shortcuts. -->
         <activity
                 android:name="it.sapienza.appinterpreter.activity.HomeActivity"
                 android:exported="true">

@@ -1,12 +1,16 @@
 package it.sapienza.appinterpreter.ios
 
+import io.ktor.client.engine.darwin.Darwin
 import it.sapienza.appinterpreter.ai.AiContext
 import it.sapienza.appinterpreter.ai.AiInstructionsChoice
+import it.sapienza.appinterpreter.ai.ShareLinks
 import it.sapienza.appinterpreter.ai.TokenEstimate
 import it.sapienza.appinterpreter.editor.ConfigurationChecker
 import it.sapienza.appinterpreter.editor.EditorIssue
 import it.sapienza.appinterpreter.editor.ImageLinks
+import it.sapienza.appinterpreter.editor.SchemaSuggestions
 import it.sapienza.appinterpreter.editor.Snippets
+import it.sapienza.appinterpreter.editor.Suggestions
 import it.sapienza.appinterpreter.editor.prettyJson
 import it.sapienza.appinterpreter.json.JsonText
 import it.sapienza.appinterpreter.json.sameValue
@@ -15,6 +19,7 @@ import it.sapienza.appinterpreter.runtime.usecase.FindMissingApiKeysUseCase
 import it.sapienza.appinterpreter.security.ApiKeyPlaceholders
 import it.sapienza.appinterpreter.security.ConfigurationKeys
 import it.sapienza.appinterpreter.security.SecretStore
+import it.sapienza.appinterpreter.storage.Photos
 import it.sapienza.appinterpreter.utils.AppLibrary
 import it.sapienza.appinterpreter.utils.SharedApps
 import it.sapienza.appinterpreter.validation.ConfigurationValidator
@@ -55,6 +60,10 @@ class ShellKit(private val secrets: SecretStore, bundledKeys: String = "") {
     private val instructions = AiInstructionsChoice(UserDefaultsAppStore(prefix = "appkin.askai."))
     private val checker by lazy { ConfigurationChecker(SharedValidator.validator) }
     private val parser by lazy { ValidatedConfigurationParser(SharedValidator.validator) }
+    private val schemaSuggestions by lazy { SchemaSuggestions(V3Schema.JSON) }
+
+    /** Schema-driven autocomplete suggestions for [json] at UTF-16 [cursor]. */
+    fun suggestions(json: String, cursor: Int): Suggestions = schemaSuggestions.assist(json, cursor).suggestions
 
     /** The live check: every problem in [json], placed in the text. */
     fun check(json: String): List<EditorIssue> = checker.check(json)
@@ -152,6 +161,26 @@ class ShellKit(private val secrets: SecretStore, bundledKeys: String = "") {
 
     /** A file name for the configuration, from its name: "my-app.json". */
     fun fileNameFor(json: String): String = AiContext.fileName(json)
+
+    fun findShareLink(text: String): String? = ShareLinks.find(text)
+
+    fun shareLinkService(link: String): String = ShareLinks.service(link)
+
+    fun readShareLink(link: String, checklist: String, signUpForm: String, restList: String): String? = runCatching {
+        val examples = AiContext.examples(checklist, signUpForm, restList).map { it.json }
+        val client = ShareLinks.client(Darwin.create())
+        try {
+            runBlocking { ShareLinks.configuration(client, link, examples) }
+        } finally {
+            client.close()
+        }
+    }.getOrNull()
+
+    /** Every "appkin-photo:<name>" reference still present in saved collection data, for orphan photo cleanup. */
+    fun keptPhotoReferences(): Set<String> {
+        val saved = UserDefaultsAppStore()
+        return Photos.referencesIn(saved.keys().joinToString { saved.get(it).orEmpty() })
+    }
 
     private companion object {
         const val DOCS = "docs/AI_CONTEXT.md"
