@@ -221,6 +221,14 @@
         <item quantity="one">%1$s needs an API key to work. Get one from the service it connects to and paste it here.</item>
         <item quantity="other">%1$s needs these API keys to work. Get them from the services it connects to and paste them here.</item>
     </plurals>
+    <plurals name="api_key_screen_rejected_title">
+        <item quantity="one">That key didn\'t work</item>
+        <item quantity="other">Those keys didn\'t work</item>
+    </plurals>
+    <plurals name="api_key_screen_rejected_text">
+        <item quantity="one">The service %1$s connects to refused the API key. Check it, or get a new one, and paste it here.</item>
+        <item quantity="other">The service %1$s connects to refused one of its API keys. Check them, or get new ones, and paste them here.</item>
+    </plurals>
     <string name="api_key_screen_privacy">Keys are encrypted on this phone and never shared with the app.</string>
     <string name="api_key_screen_save">Save and open</string>
 

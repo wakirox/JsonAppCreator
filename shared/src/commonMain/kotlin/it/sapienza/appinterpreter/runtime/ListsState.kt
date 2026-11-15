@@ -3,6 +3,7 @@ package it.sapienza.appinterpreter.runtime
 import it.sapienza.appinterpreter.model.view_model.ListView
 import it.sapienza.appinterpreter.runtime.usecase.LoadListItemsUseCase
 import it.sapienza.appinterpreter.utils.httpclient.HttpStatusException
+import it.sapienza.appinterpreter.utils.httpclient.RejectedApiKeyException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -20,7 +21,9 @@ import kotlinx.serialization.json.JsonObject
 class ListsState(
     private val scope: CoroutineScope,
     private val loadItems: LoadListItemsUseCase,
-    private val strings: RuntimeStrings = EnglishRuntimeStrings
+    private val strings: RuntimeStrings = EnglishRuntimeStrings,
+    /** Told when a list's request had an API key refused, so the key can be asked for again. */
+    private val onKeyRejected: (RejectedApiKeyException) -> Unit = {}
 ) {
 
     /**
@@ -133,6 +136,7 @@ class ListsState(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                if (e is RejectedApiKeyException) onKeyRejected(e)
                 list.contentFlow.update {
                     it.copy(
                         loadingMore = false,
@@ -170,6 +174,7 @@ class ListsState(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                if (e is RejectedApiKeyException) onKeyRejected(e)
                 list.nextUrl = null
                 list.contentFlow.update {
                     it.copy(

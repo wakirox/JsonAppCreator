@@ -10,6 +10,7 @@ import it.sapienza.appinterpreter.model.event.CallServiceMethod
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -280,6 +281,33 @@ class JsonHttpClientTest {
         )
         assertEquals("Bearer secret", headers.first()["Authorization"])
         assertNull(headers.last()["Authorization"])
+    }
+
+    @Test
+    fun aRefusalOfARequestWithKeysNamesThem() = runTest {
+        val error = assertFailsWith<RejectedApiKeyException> {
+            client(HttpStatusCode.Unauthorized).request("https://example.com/a?k=__KEY__", post = false, body = null)
+        }
+        assertEquals(401, error.status)
+        assertEquals(setOf("KEY"), error.names)
+        val forbidden = assertFailsWith<RejectedApiKeyException> {
+            client(HttpStatusCode.Forbidden).request(
+                "https://example.com/a",
+                CallServiceMethod.get,
+                null,
+                mapOf("Authorization" to "Bearer __KEY__")
+            )
+        }
+        assertEquals(setOf("KEY"), forbidden.names)
+    }
+
+    @Test
+    fun aRefusalWithoutKeysIsAPlainStatusError() = runTest {
+        val error = assertFailsWith<HttpStatusException> {
+            client(HttpStatusCode.Unauthorized).request("https://example.com/a", post = false, body = null)
+        }
+        assertFalse(error is RejectedApiKeyException)
+        assertEquals(401, error.status)
     }
 
     @Test

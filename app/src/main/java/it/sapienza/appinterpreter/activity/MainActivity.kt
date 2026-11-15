@@ -101,6 +101,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 val missingKeys by screen.missingKeys.collectAsState()
+                val keysRejected by screen.keysRejected.collectAsState()
                 val loading by screen.loading.collectAsState()
                 val data by screen.data.collectAsState()
                 val keys = missingKeys
@@ -109,6 +110,7 @@ class MainActivity : ComponentActivity() {
                         appName = app.name,
                         names = keys.names,
                         savedNames = keys.savedNames,
+                        rejected = keysRejected,
                         onSave = { values ->
                             ConfigurationApiKeys.saveForCurrentConfiguration(keys.json, values)
                             spawnNew(this)

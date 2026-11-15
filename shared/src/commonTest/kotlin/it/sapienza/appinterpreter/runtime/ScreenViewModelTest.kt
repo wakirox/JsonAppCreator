@@ -85,6 +85,8 @@ class ScreenViewModelTest {
                 MockEngine {
                     if (it.url.encodedPath.endsWith("/gone")) {
                         respond("{}", HttpStatusCode.NotFound)
+                    } else if (it.url.encodedPath.endsWith("/wrong")) {
+                        respond("{}", HttpStatusCode.Unauthorized)
                     } else {
                         respond("""{ "message": "Loaded from ${it.url.encodedPath}" }""")
                     }
@@ -133,6 +135,20 @@ class ScreenViewModelTest {
         val open = assertIs<ScreenViewModel.Effect.OpenScreen>(screen.effects.first())
         assertEquals("details", open.view.id)
         assertEquals("Ana", open.payload?.getValue("who"))
+    }
+
+    @Test
+    fun aRefusedKeyAsksForTheKeysAgain() = runTest {
+        val screen = screen(bundledKeys = mapOf("KEY" to "wrong"))
+        assertNull(screen.missingKeys.value, "the key is there, just wrong")
+        val load = assertIs<ButtonView>((screen.screen?.definition as Layout).views[1])
+
+        screen.onAction(load.action, null)
+
+        withContext(Dispatchers.Default) { withTimeout(10_000) { screen.keysRejected.first { it } } }
+        assertEquals(setOf("KEY"), screen.missingKeys.value?.names)
+        assertEquals(emptySet(), screen.missingKeys.value?.savedNames, "every key is entered again")
+        assertNull(alerts.alert, "the key screen, not an alert")
     }
 
     @Test

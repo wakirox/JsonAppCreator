@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import it.sapienza.androidratio.appratio.R
 
 /**
- * Shown in place of an app that can't work without API keys this phone lacks: one field per key, and a button that
+ * Shown in place of an app that can't work without API keys this phone lacks (or has, but a service refused): one field per key, and a button that
  * saves them and opens the app. There is no way into the app without them; back leaves it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +45,8 @@ fun ApiKeyEntryScreen(
     appName: String,
     names: Set<String>,
     savedNames: Set<String>,
+    /** A service refused a key: the screen says so, and every key is entered again. */
+    rejected: Boolean,
     onSave: (Map<String, String>) -> Unit,
     onBack: () -> Unit
 ) {
@@ -79,12 +81,21 @@ fun ApiKeyEntryScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                pluralStringResource(R.plurals.api_key_screen_title, names.size),
+                if (rejected) {
+                    pluralStringResource(R.plurals.api_key_screen_rejected_title, names.size)
+                } else {
+                    pluralStringResource(R.plurals.api_key_screen_title, names.size)
+                },
                 style = MaterialTheme.typography.headlineSmall
             )
             Text(
-                pluralStringResource(R.plurals.api_key_screen_text, names.size, appName),
-                style = MaterialTheme.typography.bodyLarge
+                if (rejected) {
+                    pluralStringResource(R.plurals.api_key_screen_rejected_text, names.size, appName)
+                } else {
+                    pluralStringResource(R.plurals.api_key_screen_text, names.size, appName)
+                },
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (rejected) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
             )
             names.forEachIndexed { index, name ->
                 val last = index == names.size - 1

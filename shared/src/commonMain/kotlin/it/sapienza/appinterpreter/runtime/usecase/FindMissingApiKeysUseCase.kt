@@ -14,4 +14,11 @@ class FindMissingApiKeysUseCase(private val current: CurrentConfiguration, priva
         val saved = keys.availableNamesForCurrentConfiguration(json)
         return if (names.all(saved::contains)) null else Missing(json, names, saved)
     }
+
+    /** All of the current app's API keys, to enter again after a service refused one: none counts as saved. */
+    fun all(): Missing? {
+        val json = current.json()
+        val names = keys.placeholderNames(json)
+        return if (names.isEmpty()) null else Missing(json, names, emptySet())
+    }
 }
