@@ -115,8 +115,8 @@ val generateTestFixtures by tasks.registering {
 
 kotlin.sourceSets.commonMain { kotlin.srcDir(generateSchemaSource) }
 kotlin.sourceSets.commonTest { kotlin.srcDir(generateTestFixtures) }
-// Android lint tasks only (lintDebug, lintRelease, lintVitalRelease, ...); not ktlint*.
-tasks.matching { it.name.startsWith("lint") && !it.name.startsWith("lintKotlin") }.configureEach {
+// Android lint tasks (lintDebug, generate*LintModel, lintAnalyze*, ...); not ktlint*.
+tasks.matching { it.name.contains("Lint", ignoreCase = true) && !it.name.startsWith("ktlint") }.configureEach {
     dependsOn(generateSchemaSource, generateTestFixtures)
 }
 
