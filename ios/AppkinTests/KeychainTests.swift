@@ -26,6 +26,8 @@ final class KeychainTests: XCTestCase {
         store.write(configurationId: configurationId, name: keyName, value: "second-value")
         XCTAssertEqual(store.read(configurationId: configurationId, name: keyName), "second-value")
         XCTAssertNil(store.read(configurationId: configurationId, name: "OTHER"))
+        store.remove(configurationId: configurationId, name: keyName)
+        XCTAssertNil(store.read(configurationId: configurationId, name: keyName))
     }
 
     func testTheKeyIsNotInTheSavedJson() {

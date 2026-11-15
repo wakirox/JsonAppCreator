@@ -18,6 +18,7 @@ import it.sapienza.appinterpreter.runtime.CurrentConfiguration
 import it.sapienza.appinterpreter.runtime.usecase.FindMissingApiKeysUseCase
 import it.sapienza.appinterpreter.security.ApiKeyPlaceholders
 import it.sapienza.appinterpreter.security.ConfigurationKeys
+import it.sapienza.appinterpreter.security.ReleaseSavedAppKeysUseCase
 import it.sapienza.appinterpreter.security.SecretStore
 import it.sapienza.appinterpreter.storage.Photos
 import it.sapienza.appinterpreter.utils.AppLibrary
@@ -56,7 +57,16 @@ class MissingKeys(val names: List<String>, val saved: List<String>)
 class ShellKit(private val secrets: SecretStore, bundledKeys: String = "") {
     private val bundled = ConfigurationKeys.decodeBundledValues(bundledKeys)
 
-    val library = AppLibrary(UserDefaultsAppStore(prefix = "appkin.library."))
+    val library = AppLibrary(
+        UserDefaultsAppStore(prefix = "appkin.library."),
+        onRemoved = { removed, replacement, library ->
+            ReleaseSavedAppKeysUseCase(ConfigurationKeys(secrets, bundled) { removed.configurationId })(
+                removed,
+                replacement,
+                library
+            )
+        }
+    )
     private val instructions = AiInstructionsChoice(UserDefaultsAppStore(prefix = "appkin.askai."))
     private val checker by lazy { ConfigurationChecker(SharedValidator.validator) }
     private val parser by lazy { ValidatedConfigurationParser(SharedValidator.validator) }

@@ -16,6 +16,8 @@ import kotlinx.serialization.json.long
  */
 class AppLibrary(
     private val store: AppStore,
+    /** Told when a saved app goes away: deleted, or replaced by [replacement] (a newer version, maybe under another id). */
+    private val onRemoved: (removed: SavedApp, replacement: SavedApp?, library: AppLibrary) -> Unit = { _, _, _ -> },
     private val now: () -> Long = { Clock.System.now().toEpochMilliseconds() }
 ) {
     /** [configurationId] is kept so an app reopened later finds its saved or bundled API keys again. */
@@ -42,7 +44,9 @@ class AppLibrary(
                 "configurationId" to JsonPrimitive(configurationId)
             )
         )
+        val previous = get(app.id)
         store.put(app.id, entry.toString())
+        if (previous != null) onRemoved(previous, app, this)
         return app
     }
 
@@ -62,7 +66,11 @@ class AppLibrary(
         }.getOrNull()
     }
 
-    fun delete(id: String) = store.remove(id)
+    fun delete(id: String) {
+        val removed = get(id)
+        store.remove(id)
+        if (removed != null) onRemoved(removed, null, this)
+    }
 
     /** "My app", or "My app 2", "My app 3"… when that name is taken, so a new app doesn't replace a saved one. */
     fun freeName(name: String): String =

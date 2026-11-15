@@ -25,6 +25,12 @@ class ConfigurationKeys(
     fun saveForCurrentConfiguration(json: String, values: Map<String, String>) =
         save(currentConfigurationId(), json, values)
 
+    /** Removes the saved keys [names] of [configurationId]; a bundled configuration's keys aren't saved ones. */
+    fun delete(configurationId: String, names: Set<String>) {
+        if (bundledName(configurationId) != null) return
+        names.forEach { name -> secrets.remove(configurationId, name) }
+    }
+
     fun availableNamesForCurrentConfiguration(json: String): Set<String> {
         val configurationId = currentConfigurationId()
         val bundledConfiguration = bundledName(configurationId)?.let(bundledValues::get).orEmpty()
