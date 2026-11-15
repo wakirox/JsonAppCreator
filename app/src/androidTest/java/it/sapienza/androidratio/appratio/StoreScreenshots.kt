@@ -232,12 +232,14 @@ class StoreScreenshots {
 
     /**
      * Saves the screen, with the status bar painted over in the colour just below it when [clearStatusBar]: some
-     * emulator renderers draw the status bar clipped, and the app's shots don't need its icons.
+     * emulator renderers draw the status bar clipped, and the app's shots don't need its icons. `-e statusBar real`
+     * keeps the real one everywhere (wakirox.app shows it, with the emulator in demo mode).
      */
     private fun shoot(name: String, clearStatusBar: Boolean = true) {
         val screen = instrumentation.uiAutomation.takeScreenshot().copy(Bitmap.Config.ARGB_8888, true)
         val id = context.resources.getIdentifier("status_bar_height", "dimen", "android")
-        val bar = if (id != 0 && clearStatusBar) context.resources.getDimensionPixelSize(id) else 0
+        val keepReal = InstrumentationRegistry.getArguments().getString("statusBar") == "real"
+        val bar = if (id != 0 && clearStatusBar && !keepReal) context.resources.getDimensionPixelSize(id) else 0
         val below = IntArray(screen.width).also { screen.getPixels(it, 0, screen.width, 0, bar, screen.width, 1) }
         for (y in 0 until bar) screen.setPixels(below, 0, screen.width, 0, y, screen.width, 1)
         File(out, "$name.png").outputStream().use { screen.compress(Bitmap.CompressFormat.PNG, 100, it) }
