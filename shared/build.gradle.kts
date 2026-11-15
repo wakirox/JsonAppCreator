@@ -29,7 +29,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
-            api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+            api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
             // JSON Schema draft 2020-12 in common code, on kotlinx.serialization (replaces networknt + Jackson).
             implementation("io.github.optimumcode:json-schema-validator:0.5.5")
             api("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
@@ -115,6 +115,10 @@ val generateTestFixtures by tasks.registering {
 
 kotlin.sourceSets.commonMain { kotlin.srcDir(generateSchemaSource) }
 kotlin.sourceSets.commonTest { kotlin.srcDir(generateTestFixtures) }
+// Android lint tasks (lintDebug, generate*LintModel, lintAnalyze*, ...); not ktlint*.
+tasks.matching { it.name.contains("Lint", ignoreCase = true) && !it.name.startsWith("ktlint") }.configureEach {
+    dependsOn(generateSchemaSource, generateTestFixtures)
+}
 
 // Kotlin style: ktlint (its rules and .editorconfig); any finding fails the build.
 ktlint {

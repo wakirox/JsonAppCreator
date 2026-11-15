@@ -16,7 +16,7 @@ class LoadAppToChangeUseCase(private val context: Context) {
     operator fun invoke(subject: AskAiSubject): String? = when (subject) {
         AskAiSubject.NewApp -> null
         AskAiSubject.CurrentApp -> DomainController.jsonFile(context)
-        is AskAiSubject.EditorText -> TextHandover.read(subject.path)
+        is AskAiSubject.EditorText -> TextHandover.read(context, subject.path)
     }
 }
 

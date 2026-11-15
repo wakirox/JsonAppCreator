@@ -6,7 +6,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import it.sapienza.androidratio.appratio.R
-import it.sapienza.appinterpreter.activity.MainActivity
+import it.sapienza.appinterpreter.activity.HomeActivity
 
 /** Home-screen shortcuts that open Appkin straight into one saved app: pinned launcher shortcuts. */
 class HomeShortcuts(private val context: Context) : HomeScreenShortcuts {
@@ -33,7 +33,7 @@ class HomeShortcuts(private val context: Context) : HomeScreenShortcuts {
     }
 
     private fun shortcut(app: AppLibrary.SavedApp): ShortcutInfoCompat {
-        val intent = Intent(context, MainActivity::class.java)
+        val intent = Intent(context, HomeActivity::class.java)
             .setAction(Intent.ACTION_VIEW)
             .putExtra(EXTRA_APP_ID, app.id)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
