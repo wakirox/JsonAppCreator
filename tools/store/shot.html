@@ -1,9 +1,12 @@
 <!doctype html>
 <!--
-  One Play Store phone screenshot (1080×1920): a caption on top and the app screen in a phone frame below it.
+  One store screenshot: a caption on top and the app screen in a phone frame below it. Play's phone shots are
+  1080×1920; App Store sizes come from the query (render-ios.sh): w×h is the page in layout pixels, ratio the
+  capture's height over its width, radius the screen's corner as a share of its width, store=ios the iOS captions.
   Shots with `code` in captions.js show a JSON excerpt beside the phone, `split` shows it side by side with the screen it
   makes; `prompt` adds a chat bubble under the caption.
-  Query: ?shot=gallery&src=raw/gallery.png. Rendered by render.sh with headless Chrome.
+  Query: ?shot=gallery&src=raw/gallery.png[&w=1080&h=2347&ratio=2.173&radius=.125&store=ios]. Rendered by render.sh
+  and render-ios.sh with headless Chrome.
 -->
 <html><head><meta charset="utf-8">
 <script src="captions.js"></script>
@@ -11,7 +14,7 @@
   @font-face { font-family: GSF; src: url("fonts/google_sans_flex.ttf"); }
   :root { --coral: #ef6b57; --slate: #4d6b75; --ink: #f4f1ee; --bg: #121417; }
   html, body { margin: 0; overflow: hidden; }
-  body { width: 1080px; height: 1920px; background: var(--bg); color: var(--ink); font-family: GSF, sans-serif;
+  body { background: var(--bg); color: var(--ink); font-family: GSF, sans-serif;
     position: relative; }
   /* The icon's tiles, large and faint, in the top right corner behind the caption. */
   body::before { content: ""; position: absolute; width: 520px; height: 430px; right: -60px; top: -70px;
@@ -20,6 +23,8 @@
   .kicker { font-size: 42px; color: var(--coral); margin-bottom: 18px;
     font-variation-settings: "wght" 600, "ROND" 100; }
   .headline { font-size: 82px; line-height: 1.05; font-variation-settings: "wght" 850, "wdth" 85, "opsz" 144; }
+  .sub { font-size: 36px; line-height: 1.3; margin-top: 24px; color: #c9c4bf; font-variation-settings: "wght" 500; }
+  .sub:empty { display: none; }
   .device { position: absolute; overflow: hidden; background: #000; border: 14px solid #2a2e33;
     border-radius: 64px; box-shadow: 0 30px 80px rgba(0, 0, 0, .55); }
   .device img { display: block; width: 100%; }
@@ -38,14 +43,17 @@
     font-variation-settings: "wght" 560; box-shadow: 0 20px 50px rgba(0, 0, 0, .45); }
 </style></head>
 <body>
-<div class="caption" id="caption"><div class="kicker" id="kicker"></div><div class="headline" id="headline"></div></div>
+<div class="caption" id="caption"><div class="kicker" id="kicker"></div><div class="headline" id="headline"></div><div class="sub" id="sub"></div></div>
 <div class="device" id="device"><img id="screen"></div>
 <script>
   const q = new URLSearchParams(location.search);
   const shot = q.get("shot") || "home";
-  const c = CAPTIONS.en[shot];
+  const c = { ...CAPTIONS.en[shot], ...(CAPTIONS[q.get("store")] || {})[shot] };
+  const W = +(q.get("w") || 1080), H = +(q.get("h") || 1920);
+  Object.assign(document.body.style, { width: W + "px", height: H + "px" });
   document.getElementById("kicker").textContent = c.kicker;
   document.getElementById("headline").textContent = c.headline;
+  document.getElementById("sub").textContent = c.sub || "";
   document.getElementById("screen").src = q.get("src");
 
   // JSON syntax colours: keys, string values, punctuation.
@@ -55,13 +63,29 @@
       punct ? `<span class="p">${punct}</span>` : colon ? `<span class="k">${str}</span>${colon}` : `<span class="s">${str}</span>`);
   }
 
-  const ratio = 2400 / 1080;  // the raw captures
+  const ratio = +(q.get("ratio") || 2400 / 1080);  // the raw captures
   const device = document.getElementById("device");
   const border = parseFloat(getComputedStyle(device).borderTopWidth);
+  // The frame's corner follows the screen's own (the iPhone Duo's outer screen is nearly square-cornered).
+  const corner = width => q.get("radius") ? { borderRadius: +q.get("radius") * width + border + "px" } : {};
 
   document.fonts.ready.then(() => {
-    // The phone starts at the same height whether the caption takes one line or two, so every shot is the same size.
-    let top = Math.max(document.getElementById("caption").getBoundingClientRect().bottom + 64, 412);
+    // The phone starts under the tallest caption of the whole set, so it's the same size in every shot.
+    const caption = document.getElementById("caption");
+    let top = 412;
+    for (const name of Object.keys(CAPTIONS.en)) {
+      const other = { ...CAPTIONS.en[name], ...(CAPTIONS[q.get("store")] || {})[name] };
+      if (other.split) continue;  // laid out on its own
+      const probe = caption.cloneNode(true);
+      probe.removeAttribute("id");
+      probe.style.visibility = "hidden";
+      probe.children[0].textContent = other.kicker;
+      probe.children[1].textContent = other.headline;
+      probe.children[2].textContent = other.sub || "";
+      document.body.appendChild(probe);
+      top = Math.max(top, probe.getBoundingClientRect().bottom + 64);
+      probe.remove();
+    }
     // The prompt bubble first, under the caption.
     if (c.prompt) {
       const bubble = document.createElement("div");
@@ -74,20 +98,28 @@
     if (c.split) {
       // Side by side: the JSON file on the left, what Appkin shows from it on the right, each under its label, the
       // pair centred in the space under the caption.
-      const gap = 20, labelHeight = 58, width = 450, inner = width * ratio;
+      const gap = 20, labelHeight = 58;
       top += 36;
-      const phoneLeft = 1080 - 40 - width - 2 * border;
+      // 450 wide on a phone page; on a wide page as tall as fits above the note.
+      let width = 450;
+      if (W > H) width = Math.min((H - top - labelHeight - 2 * border - 150) / ratio, W * 0.6);
+      const inner = width * ratio;
+      const phoneLeft = W - 40 - width - 2 * border;
+      const placed = [device];
       [["The JSON file", 40], ["What Appkin shows", phoneLeft]].forEach(([text, left]) => {
         const label = document.createElement("div");
+        placed.push(label);
         label.className = "label";
         label.textContent = text;
         Object.assign(label.style, { top: top + "px", left: left + "px" });
         document.body.appendChild(label);
       });
       top += labelHeight;
-      Object.assign(device.style, { width: width + "px", height: inner + "px", top: top + "px", left: phoneLeft + "px" });
+      Object.assign(device.style, { width: width + "px", height: inner + "px", top: top + "px", left: phoneLeft + "px",
+        ...corner(width) });
       const card = document.createElement("div");
       card.className = "code split";
+      placed.push(card);
       card.innerHTML = highlight(CODE[c.split]);
       Object.assign(card.style, { top: top + "px", left: "40px", width: phoneLeft - gap - 40 + "px",
         height: inner + 2 * border + "px" });
@@ -98,14 +130,20 @@
         note.textContent = c.note;
         note.style.top = top + inner + 2 * border + 48 + "px";
         document.body.appendChild(note);
+        placed.push(note);
+      }
+      // App Store pages are taller than Play's: the group sits in the middle of the space under the caption.
+      if (q.has("h")) {
+        const shift = (H - 56 - Math.max(...placed.map(e => e.getBoundingClientRect().bottom))) / 2;
+        if (shift > 0) placed.forEach(e => { e.style.top = parseFloat(e.style.top) + shift + "px"; });
       }
       return;
     }
     if (!c.code) {
       // The whole phone, centred, from under the caption (and bubble) to the bottom margin.
-      const inner = 1920 - 56 - top - 2 * border, width = inner / ratio;
+      const inner = H - 56 - top - 2 * border, width = inner / ratio;
       Object.assign(device.style, { width: width + "px", height: inner + "px", top: top + "px",
-        left: (1080 - width) / 2 - border + "px" });
+        left: (W - width) / 2 - border + "px", ...corner(width) });
       return;
     }
     // The phone on the right, running off the bottom edge, and the JSON card over its lower part on the left, so the

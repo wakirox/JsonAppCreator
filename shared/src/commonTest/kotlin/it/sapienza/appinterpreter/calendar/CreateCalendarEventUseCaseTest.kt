@@ -2,6 +2,7 @@ package it.sapienza.appinterpreter.calendar
 
 import it.sapienza.appinterpreter.json.JsonText
 import it.sapienza.appinterpreter.model.event.CalendarEvent
+import it.sapienza.appinterpreter.runtime.EnglishRuntimeStrings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -50,9 +51,10 @@ class CreateCalendarEventUseCaseTest {
             assertIs<CreateCalendarEventUseCase.Result.BadDate>(
                 create(CalendarEvent(title = "T", date = "2026-10-20", time = "9:00"), data)
             )
+        assertEquals("2026-10-20 9:00", result.value)
         assertEquals(
             "The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"2026-10-20 9:00\".",
-            result.message
+            EnglishRuntimeStrings.calendarBadDate(result.value)
         )
     }
 }

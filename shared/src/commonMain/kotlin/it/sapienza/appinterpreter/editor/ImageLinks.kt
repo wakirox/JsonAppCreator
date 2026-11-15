@@ -1,6 +1,8 @@
 package it.sapienza.appinterpreter.editor
 
 import it.sapienza.appinterpreter.json.JsonText
+import it.sapienza.appinterpreter.runtime.EnglishRuntimeStrings
+import it.sapienza.appinterpreter.runtime.RuntimeStrings
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -53,7 +55,11 @@ object ImageLinks {
      * The problems to show for [json]'s images that don't load, each placed at its address in the text. [status]
      * gives an address's HTTP status after redirects (null when it couldn't be reached at all).
      */
-    suspend fun problems(json: String, status: suspend (String) -> Int?): List<EditorIssue> {
+    suspend fun problems(
+        json: String,
+        strings: RuntimeStrings = EnglishRuntimeStrings,
+        status: suspend (String) -> Int?
+    ): List<EditorIssue> {
         val tree = runCatching { JsonText.parse(json) }.getOrNull() ?: return emptyList()
         val links = find(tree).take(MAX)
         if (links.isEmpty()) return emptyList()
@@ -62,11 +68,10 @@ object ImageLinks {
         return links.zip(results).mapNotNull { (link, code) ->
             val (path, url) = link
             if (code != null && code in 200..299) return@mapNotNull null
-            val why = code?.let { "error $it" } ?: "no answer"
             EditorIssue(
                 ConfigurationChecker.offsetOf(path, offsets),
                 path,
-                "This image doesn't load ($why): $url. Check the address, or use another picture"
+                strings.imageDoesNotLoad(code, url)
             )
         }
     }

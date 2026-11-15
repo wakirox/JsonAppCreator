@@ -1,7 +1,6 @@
 package it.sapienza.appinterpreter.ai
 
 import android.content.Context
-import it.sapienza.appinterpreter.storage.AppStore
 import it.sapienza.appinterpreter.utils.DomainController
 import it.sapienza.appinterpreter.utils.TextHandover
 
@@ -17,7 +16,7 @@ class LoadAppToChangeUseCase(private val context: Context) {
     operator fun invoke(subject: AskAiSubject): String? = when (subject) {
         AskAiSubject.NewApp -> null
         AskAiSubject.CurrentApp -> DomainController.jsonFile(context)
-        is AskAiSubject.EditorText -> TextHandover.read(subject.path)
+        is AskAiSubject.EditorText -> TextHandover.read(context, subject.path)
     }
 }
 
@@ -28,15 +27,4 @@ class LoadAppToChangeUseCase(private val context: Context) {
 class BuildAiPromptUseCase(private val context: Context) {
     operator fun invoke(appToChange: String?, request: String?, withLinks: Boolean): String =
         AskAi.context(context, appToChange, request, withLinks)
-}
-
-/** How the user last chose to send the instructions, kept for the next time (all of them by default). */
-class AiInstructionsChoice(private val store: AppStore) {
-    var withLinks: Boolean
-        get() = store.get(WITH_LINKS) == "true"
-        set(value) = store.put(WITH_LINKS, value.toString())
-
-    private companion object {
-        const val WITH_LINKS = "with_links"
-    }
 }

@@ -147,6 +147,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
+import it.sapienza.androidratio.appratio.R
 import it.sapienza.appinterpreter.activity.createIntentPhotoActivity
 import it.sapienza.appinterpreter.extensions.toDate
 import it.sapienza.appinterpreter.form.extensions.stringValue
@@ -384,7 +385,7 @@ private fun FileChips(
                     {
                         Icon(
                             Icons.Filled.Close,
-                            contentDescription = "Remove ${file.name}",
+                            contentDescription = stringResource(R.string.field_remove_named, file.name),
                             modifier = Modifier.size(InputChipDefaults.IconSize).clickable { remove(file) }
                         )
                     }
@@ -654,7 +655,7 @@ private fun RenderImage(
         .clip(if (edgeToEdge) RectangleShape else RoundedCornerShape(16.dp))
         .action(view.action, data, openPreview)
     if (url == null) {
-        ImagePlaceholder(imageModifier) { Text("Image unavailable") }
+        ImagePlaceholder(imageModifier) { Text(stringResource(R.string.image_unavailable)) }
         return
     }
     // A plain AsyncImage, not SubcomposeAsyncImage: list cards size their rows to their content, which a
@@ -679,7 +680,7 @@ private fun RenderImage(
             is AsyncImagePainter.State.Success -> {}
 
             is AsyncImagePainter.State.Error -> ImagePlaceholder(Modifier.matchParentSize()) {
-                Text("Image unavailable")
+                Text(stringResource(R.string.image_unavailable))
             }
 
             else -> ImagePlaceholder(Modifier.matchParentSize()) { LoadingIndicator(Modifier.size(32.dp)) }
@@ -732,10 +733,10 @@ private fun openFullSize(context: Context, scope: CoroutineScope, url: String) {
 /** Where an image that couldn't be loaded would be: a tile with a broken-image icon. */
 @Composable
 private fun BrokenImage(modifier: Modifier) {
+    val description = stringResource(R.string.image_unavailable)
     Box(
         modifier.background(MaterialTheme.colorScheme.surfaceVariant).semantics {
-            contentDescription =
-                "Image unavailable"
+            contentDescription = description
         },
         contentAlignment = Alignment.Center
     ) {
@@ -869,7 +870,7 @@ private fun GridRow(view: ListView, row: List<JsonObject>, firstIndex: Int) {
 @Composable
 private fun EmptyList(view: ListView, entry: ListsState.Entry) {
     Text(
-        view.emptyText?.matchReplace(entry.data)?.takeIf { it.isNotBlank() } ?: "No data available",
+        view.emptyText?.matchReplace(entry.data)?.takeIf { it.isNotBlank() } ?: stringResource(R.string.list_no_data),
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(vertical = 8.dp).testTag("list-empty")
@@ -896,7 +897,7 @@ private fun MoreItems(entry: ListsState.Entry, state: ListsState.Content, automa
 
             else -> OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = {
                 screen.lists.loadMore(entry)
-            }) { Text("Show more") }
+            }) { Text(stringResource(R.string.list_show_more)) }
         }
     }
 }
@@ -909,7 +910,9 @@ private fun ListLoadError(message: String, onRetry: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(message, style = MaterialTheme.typography.bodyMedium)
-        OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = onRetry) { Text("Retry") }
+        OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = onRetry) {
+            Text(stringResource(R.string.list_retry))
+        }
     }
 }
 
@@ -1181,7 +1184,7 @@ private fun RenderForm(view: FormView, data: JsonObject?, modifier: Modifier) {
             modifier = Modifier.fillMaxWidth().heightIn(min = height),
             contentPadding = ButtonDefaults.contentPaddingFor(height)
         ) {
-            Text(view.buttonTitle ?: "Submit", style = ButtonDefaults.textStyleFor(height))
+            Text(view.buttonTitle ?: stringResource(R.string.field_submit), style = ButtonDefaults.textStyleFor(height))
         }
     }
 }
@@ -1259,7 +1262,7 @@ private fun DateField(item: DateInput, value: String?, onChange: (Any?) -> Unit)
         FieldTitle(item.title)
         OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = {
             picking = true
-        }, modifier = Modifier.fillMaxWidth()) { Text(value ?: "Choose date") }
+        }, modifier = Modifier.fillMaxWidth()) { Text(value ?: stringResource(R.string.field_choose_date)) }
         Description(item.description)
     }
     if (!picking) return
@@ -1296,7 +1299,7 @@ private fun TimeField(item: TimeInput, value: String?, onChange: (Any?) -> Unit)
         FieldTitle(item.title)
         OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = {
             picking = true
-        }, modifier = Modifier.fillMaxWidth()) { Text(value ?: "Choose time") }
+        }, modifier = Modifier.fillMaxWidth()) { Text(value ?: stringResource(R.string.field_choose_time)) }
         Description(item.description)
     }
     if (!picking) return
@@ -1445,7 +1448,7 @@ private fun PhotosField(item: PhotosInput, photos: JsonArray?, onChange: (Any?) 
                         ) {
                             Icon(
                                 Icons.Filled.Close,
-                                contentDescription = "Remove photo",
+                                contentDescription = stringResource(R.string.field_remove_photo),
                                 modifier = Modifier.size(16.dp)
                             )
                         }
@@ -1466,11 +1469,11 @@ private fun PhotosField(item: PhotosInput, photos: JsonArray?, onChange: (Any?) 
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Text(if (current.isEmpty()) "Add photos" else "Add more")
+            Text(stringResource(if (current.isEmpty()) R.string.field_add_photos else R.string.field_add_more))
         }
         if (failed) {
             Text(
-                "A photo couldn't be added.",
+                stringResource(R.string.field_photo_failed),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -1507,7 +1510,7 @@ private fun TagsField(item: TagsInput, tags: JsonArray?, known: List<String>, on
             keyboardActions = KeyboardActions(onDone = { add() }),
             trailingIcon = {
                 IconButton(onClick = add, enabled = typed.isNotBlank(), shapes = IconButtonDefaults.shapes()) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add tag")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.field_add_tag))
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -1533,7 +1536,7 @@ private fun TagsField(item: TagsInput, tags: JsonArray?, known: List<String>, on
                         trailingIcon = {
                             Icon(
                                 Icons.Filled.Close,
-                                contentDescription = "Remove $tag",
+                                contentDescription = stringResource(R.string.field_remove_named, tag),
                                 modifier = Modifier.size(InputChipDefaults.IconSize).clickable {
                                     onChange(JsonArray((current - tag).map(::JsonPrimitive)).takeIf { it.isNotEmpty() })
                                 }
@@ -1579,7 +1582,7 @@ private fun FilesField(item: FilesInput, value: JsonArray?, onChange: (Any?) -> 
         ) {
             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Text(if (current.isEmpty()) "Attach files" else "Attach more")
+            Text(stringResource(if (current.isEmpty()) R.string.field_attach_files else R.string.field_attach_more))
         }
         Description(item.description)
     }
@@ -1631,7 +1634,7 @@ private fun StoredListControls(view: ListView, entry: ListsState.Entry, state: L
                 FilterChip(
                     selected = choice.tag == null,
                     onClick = { screen.lists.choose(entry, choice.copy(tag = null)) },
-                    label = { Text("All") }
+                    label = { Text(stringResource(R.string.list_filter_all)) }
                 )
                 tags.forEach { tag ->
                     FilterChip(

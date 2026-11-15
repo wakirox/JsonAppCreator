@@ -117,7 +117,7 @@ class AskAiScreenTest {
         val prompt = send.getStringExtra(Intent.EXTRA_TEXT).orEmpty()
         assertTrue(
             prompt.contains(
-                "https://raw.githubusercontent.com/wakirox/JsonAppCreator-Android/${BuildConfig.AI_DOCS_REF}/docs/AI_CONTEXT.md"
+                "https://raw.githubusercontent.com/wakirox/JsonAppCreator/${BuildConfig.AI_DOCS_REF}/docs/AI_CONTEXT.md"
             )
         )
         scenario?.close()

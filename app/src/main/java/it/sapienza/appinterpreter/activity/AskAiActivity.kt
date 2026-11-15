@@ -55,7 +55,7 @@ class AskAiActivity : AppCompatActivity() {
     private fun handle(effect: AskAiViewModel.Effect) {
         when (effect) {
             is AskAiViewModel.Effect.Share -> AskAi.shareToAiApp(this, effect.prompt)
-            is AskAiViewModel.Effect.Copy -> AskAi.copy(this, effect.prompt, "Copied: paste it into your AI app")
+            is AskAiViewModel.Effect.Copy -> AskAi.copy(this, effect.prompt, getString(R.string.ask_ai_copied))
         }
         finish()
     }

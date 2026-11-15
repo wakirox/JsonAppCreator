@@ -26,4 +26,4 @@ FOR THE CURIOUS
 Every app is one plain JSON file you can read. A built-in editor shows it with colours, suggestions and a live check, and the format guide on GitHub explains every part.
 
 PRIVATE AND OPEN SOURCE
-No ads, no account, no data collected. If an app needs an API key, Appkin asks for it once and keeps it encrypted on your phone. Appkin is open source under the MIT licence: github.com/wakirox/JsonAppCreator-Android
+No ads, no account, no data collected. If an app needs an API key, Appkin asks for it once and keeps it encrypted on your phone. Appkin is open source under the MIT licence: github.com/wakirox/JsonAppCreator

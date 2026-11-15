@@ -7,15 +7,145 @@ targets:
   Appkin:
     type: application
     platform: iOS
-    sources: [Appkin]
+    sources:
+      - path: Appkin
+      # The bundled examples, the same files the Android app ships.
+      - path: ../app/src/main/res/raw
+        includes: ["*.json"]
+        buildPhase: resources
+      # The guide for AI apps, which the instructions in Ask your AI app are built from.
+      - path: ../docs/LLM_GUIDE.md
+        buildPhase: resources
+    info:
+      path: Appkin/Info.plist
+      properties:
+        CFBundleDisplayName: Appkin
+        UILaunchScreen: {}
+        # Appkin opens .json files from Files and "Open in": its own .appkin.json files, and any JSON file.
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Appkin file
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - app.wakirox.appkin.json
+          - CFBundleTypeName: JSON file
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - public.json
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: app.wakirox.appkin.json
+            UTTypeDescription: Appkin file
+            UTTypeConformsTo:
+              - public.json
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - appkin.json
+    preBuildScripts:
+      # The shared Kotlin engine, built for the SDK and architecture being built and placed where the app links it.
+      - name: Build the shared engine
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          export JAVA_HOME="${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}"
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode
+    postCompileScripts:
+      # The bundled examples' API keys, from the build machine's private key file (the one the Android build reads),
+      # into the app as Base64 JSON. Never printed or committed; without the file the examples ask for their keys.
+      - name: Bundle the examples' API keys
+        basedOnDependencyAnalysis: false
+        script: |
+          keys="${APPKIN_CONFIG_KEYS_FILE:-$HOME/.config/appkin/config-api-keys.properties}"
+          out="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bundled-api-keys.b64"
+          rm -f "$out"
+          [ -r "$keys" ] || exit 0
+          /usr/bin/python3 - "$keys" "$out" <<'PY'
+          import base64, json, sys
+          values = {}
+          for line in open(sys.argv[1], encoding="utf-8"):
+              line = line.strip()
+              if not line or line.startswith("#") or "=" not in line:
+                  continue
+              key, value = line.split("=", 1)
+              resource, _, name = key.strip().partition(".")
+              if name:
+                  values.setdefault(resource, {})[name] = value.strip()
+          open(sys.argv[2], "w").write(base64.b64encode(json.dumps(values).encode()).decode())
+          PY
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.wakirox.appkin
-        MARKETING_VERSION: "0.1"
-        CURRENT_PROJECT_VERSION: "1"
+        # Every text in the code is collected into Localizable.xcstrings as it builds.
+        SWIFT_EMIT_LOC_STRINGS: YES
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "2"
         SWIFT_VERSION: "6.0"
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_CFBundleDisplayName: Appkin
-        TARGETED_DEVICE_FAMILY: "1,2"
+        # Add to Calendar: the system's event editor saves what the user confirms; the app only prepares the event.
+        INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription: Appkin adds the events you choose to your calendar.
+        # Only standard HTTPS: no export compliance documents needed.
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        # Turns with the phone: the iPhone Duo is used sideways.
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+        # Files are read where they are, with security-scoped access, not copied into the app.
+        INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
+        # iPhone only (iPad runs it in iPhone mode): no iPad layouts or store screenshots to keep.
+        TARGETED_DEVICE_FAMILY: "1"
+        # The simulator build is signed ad hoc: without a signature the Keychain refuses every write (-34018).
+        # Devices are signed with the owner's team when archiving.
+        CODE_SIGNING_ALLOWED: YES
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: "-"
+        FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: "$(inherited) -framework AppkinShared"
+        # Gradle reads and writes the repository outside the sandbox of script phases.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+      configs:
+        # App Store builds: the team's Apple Distribution certificate and the "Appkin App Store" profile.
+        Release:
+          DEVELOPMENT_TEAM: 793Z38F3BF
+          CODE_SIGN_STYLE: Manual
+          "CODE_SIGN_IDENTITY[sdk=iphoneos*]": Apple Distribution
+          "CODE_SIGNING_REQUIRED[sdk=iphoneos*]": YES
+          "PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]": Appkin App Store
+  AppkinUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: AppkinUITests
+    dependencies:
+      - target: Appkin
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
         CODE_SIGNING_ALLOWED: NO
+        SWIFT_VERSION: "6.0"
+  AppkinTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: AppkinTests
+    dependencies:
+      - target: Appkin
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGNING_ALLOWED: NO
+        SWIFT_VERSION: "6.0"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Appkin.app/Appkin"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  Appkin:
+    build:
+      targets:
+        Appkin: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - AppkinTests
+        - AppkinUITests

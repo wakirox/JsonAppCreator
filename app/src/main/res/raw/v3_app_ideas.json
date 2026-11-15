@@ -459,7 +459,7 @@
               "title": "Link",
               "textType": "url",
               "placeholder": "https://…",
-              "description": "A mockup, a Play listing, anything to open later"
+              "description": "A mockup, a store listing, anything to open later"
             },
             {
               "type": "photos",
@@ -549,7 +549,7 @@
               "title": "Link",
               "textType": "url",
               "placeholder": "https://…",
-              "description": "A mockup, a Play listing, anything to open later"
+              "description": "A mockup, a store listing, anything to open later"
             },
             {
               "type": "photos",

@@ -8,6 +8,7 @@ import it.sapienza.appinterpreter.model.event.RESTService
 import it.sapienza.appinterpreter.model.view_model.ListView
 import it.sapienza.appinterpreter.model.view_model.StoredData
 import it.sapienza.appinterpreter.runtime.ListChoice
+import it.sapienza.appinterpreter.runtime.RuntimeStrings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -69,14 +70,14 @@ class LoadListItemsUseCase(private val fetchJson: FetchJsonUseCase, private val 
             )
     }
 
-    /** What the user reads when loading fails with [message]. */
-    fun errorMessage(message: String): String = when {
+    /** What the user reads when loading fails with [message], in [strings]' words. */
+    fun errorMessage(message: String, strings: RuntimeStrings): String = when {
         message.contains("resolve host", ignoreCase = true) ||
             message.contains("failed to connect", ignoreCase = true) ||
             message.contains("timeout", ignoreCase = true) ->
-            "Unable to load data. Check your connection and try again."
+            strings.loadFailedOffline
 
-        else -> "Unable to load data. $message"
+        else -> strings.loadFailed(message)
     }
 
     companion object {

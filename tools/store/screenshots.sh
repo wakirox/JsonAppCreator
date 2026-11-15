@@ -4,6 +4,7 @@
 #
 #   tools/store/screenshots.sh             # uses the running emulator, or starts one with no window
 #   AVD=my_avd tools/store/screenshots.sh  # the AVD to start when none is running (default: the first one)
+#   ANDROID_SERIAL=emulator-5556 tools/store/screenshots.sh  # that emulator, when several are running
 #
 # The app is reinstalled with its data cleared, so this only ever runs on an emulator.
 # Needs: the Android SDK (ANDROID_HOME or ~/Android/Sdk), JDK 17 for Gradle, and what render.sh needs.
@@ -15,7 +16,7 @@ adb="$sdk/platform-tools/adb"
 package=it.sapienza.androidratio.appratio
 raw="$root/tools/store/raw"
 
-serial=$("$adb" devices | awk '$1 ~ /^emulator-/ && $2 == "device" { print $1; exit }')
+serial="${ANDROID_SERIAL:-$("$adb" devices | awk '$1 ~ /^emulator-/ && $2 == "device" { print $1; exit }')}"
 if [ -z "$serial" ]; then
   avd="${AVD:-$("$sdk/emulator/emulator" -list-avds | head -1)}"
   [ -n "$avd" ] || { echo "No emulator running and no AVD to start" >&2; exit 1; }

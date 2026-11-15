@@ -4,7 +4,7 @@
   "icon": "🎬",
   "version": "beta.1",
   "author": "Appkin",
-  "changelog": "Movies and people from The Movie Database (TMDB). This product uses the TMDB API but is not endorsed or certified by TMDB.\nReport problems on GitHub: github.com/wakirox/JsonAppCreator-Android/issues",
+  "changelog": "Movies and people from The Movie Database (TMDB). This product uses the TMDB API but is not endorsed or certified by TMDB.\nReport problems on GitHub: github.com/wakirox/JsonAppCreator/issues",
   "mainView": {
     "id": "l0",
     "type": "layout",
@@ -40,7 +40,7 @@
       {
         "type": "text",
         "label": "Popular movies",
-        "title": "click for detail",
+        "title": "Tap one for details",
         "action": {
           "id": "show_featured_movies"
         }

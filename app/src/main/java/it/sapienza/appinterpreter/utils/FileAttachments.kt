@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.core.net.toUri
+import it.sapienza.androidratio.appratio.R
 import it.sapienza.appinterpreter.storage.Files
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,7 +37,12 @@ class FileAttachments(context: Context) {
                 size = if (cursor.isNull(1)) null else cursor.getLong(1)
             }
         }
-        Files.Attached(name ?: uri.lastPathSegment ?: "file", resolver.getType(uri), size, uri.toString())
+        Files.Attached(
+            name ?: uri.lastPathSegment ?: context.getString(R.string.files_default_name),
+            resolver.getType(uri),
+            size,
+            uri.toString()
+        )
     }
 
     /** Whether [file] can still be read: false once it was moved or deleted, or its permission is gone. */
@@ -53,7 +59,7 @@ class FileAttachments(context: Context) {
         /** Opens [file] in an app that reads its type, or says why it can't. */
         suspend fun open(context: Context, file: Files.Attached) {
             if (!FileAttachments(context).isThere(file)) {
-                Toast.makeText(context, "${file.name} is no longer on this phone", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.files_missing, file.name), Toast.LENGTH_LONG).show()
                 return
             }
             val view = Intent(Intent.ACTION_VIEW).setDataAndType(file.uri.toUri(), file.type ?: "*/*")
@@ -61,7 +67,7 @@ class FileAttachments(context: Context) {
             try {
                 context.startActivity(view)
             } catch (_: ActivityNotFoundException) {
-                Toast.makeText(context, "No app on this phone opens ${file.name}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.files_no_app, file.name), Toast.LENGTH_LONG).show()
             }
         }
     }

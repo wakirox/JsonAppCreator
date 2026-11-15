@@ -50,6 +50,16 @@ class FormsStateTest {
     }
 
     @Test
+    fun theMissingFieldsMessageComesInTheAppsLanguage() {
+        val italian = object : RuntimeStrings by EnglishRuntimeStrings {
+            override fun formIncomplete(fields: String) = "Completa: $fields"
+        }
+        val forms = FormsState(saved, strings = italian)
+        forms.submit(form, data)
+        assertEquals("Completa: Rules", forms.error(form, data))
+    }
+
+    @Test
     fun aRecreatedScreenGetsTheTypedValuesBack() {
         FormsState(saved).set(form, data, "runner.name", "Giulia")
         FormsState(saved).set(form, data, "rules", true)

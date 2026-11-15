@@ -23,7 +23,8 @@ class FormsState(
     private val saved: SavedStateHandle,
     private val initialValues: InitialFormValuesUseCase = InitialFormValuesUseCase(),
     private val submit: SubmitFormUseCase = SubmitFormUseCase(),
-    private val addsNew: (FormView) -> Boolean = { false }
+    private val addsNew: (FormView) -> Boolean = { false },
+    private val strings: RuntimeStrings = EnglishRuntimeStrings
 ) {
     /** One form on one piece of data: its values by mapping (text, true/false or null) and why it wasn't sent. */
     class Form internal constructor(values: Map<String, Any?>) {
@@ -72,7 +73,10 @@ class FormsState(
     fun submit(form: FormView, data: JsonObject?): JsonObject? {
         val state = state(form, data)
         return when (val result = submit(form, state.values.value)) {
-            is SubmitFormUseCase.Result.Missing -> null.also { state.errorFlow.value = result.message }
+            is SubmitFormUseCase.Result.Missing -> null.also {
+                state.errorFlow.value = strings.formIncomplete(result.fields.joinToString())
+            }
+
             is SubmitFormUseCase.Result.Ready -> result.json.also { state.errorFlow.value = null }
         }
     }

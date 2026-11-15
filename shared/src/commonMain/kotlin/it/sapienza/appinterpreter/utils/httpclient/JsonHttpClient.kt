@@ -92,7 +92,7 @@ class JsonHttpClient(
 
         /** "Appkin/1.2 (Android; https://...)": the app, its version and platform, and where it comes from. */
         fun userAgent(versionName: String, platform: String) =
-            "Appkin/$versionName ($platform; https://github.com/wakirox/JsonAppCreator-Android)"
+            "Appkin/$versionName ($platform; https://github.com/wakirox/JsonAppCreator)"
     }
 }
 

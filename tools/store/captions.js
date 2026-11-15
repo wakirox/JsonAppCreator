@@ -1,5 +1,5 @@
-// Play Store captions, one entry per screenshot (the listing is English only).
-// `code` shows a JSON excerpt beside the phone; `prompt` puts a chat bubble above it.
+// Store captions, one entry per screenshot (the listings are English only).
+// `code` shows a JSON excerpt beside the phone; `prompt` puts a chat bubble above it; `sub` is a line under the headline.
 const CAPTIONS = {
   en: {
     gallery: {
@@ -8,11 +8,18 @@ const CAPTIONS = {
     },
     detail: { kicker: "Lists and pages", headline: "Tap an item to see its own page" },
     ideas: { kicker: "Saved on your phone", headline: "Notes with photos, tags and files" },
-    ai: { kicker: "With your AI app", headline: "Describe it, your AI app writes the JSON" },
+    ai: {
+      kicker: "With your AI app", headline: "Describe it, your AI app writes the JSON",
+      sub: "No AI inside: copy the request into your own AI app, then paste its answer back.",
+    },
     home: { kicker: "Your files", headline: "Every JSON you open, kept in one place" },
     form: { kicker: "Forms", headline: "Sign-ups that check every field" },
     shortcut: { kicker: "On your home screen", headline: "Pin any of them as its own icon" },
     editor: { kicker: "No code inside", headline: "Just JSON you can read and change" },
+  },
+  // App Store changes to the captions above (render-ios.sh): the iPhone shots attach links rather than files.
+  ios: {
+    ideas: { headline: "Notes with photos, tags and links" },
   },
 };
 

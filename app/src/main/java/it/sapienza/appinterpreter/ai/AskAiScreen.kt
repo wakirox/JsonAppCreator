@@ -65,6 +65,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -83,10 +84,10 @@ import java.text.NumberFormat
 
 /** Ideas to start from: tapping one writes its request in the field. */
 private val IDEAS = listOf(
-    "📚 Book list" to "A list of my favourite books, with a screen for each: cover, author and my notes",
-    "🍝 Recipes" to "My family recipes, searchable, each with its ingredients and steps",
-    "🏃 Race sign-up" to "A sign-up form for our 10 km summer race, with name, email, date of birth and T-shirt size",
-    "🖼️ Art gallery" to "A gallery of famous paintings from a public museum API, with a page for each"
+    R.string.ask_ai_idea_books to R.string.ask_ai_idea_books_request,
+    R.string.ask_ai_idea_recipes to R.string.ask_ai_idea_recipes_request,
+    R.string.ask_ai_idea_race to R.string.ask_ai_idea_race_request,
+    R.string.ask_ai_idea_gallery to R.string.ask_ai_idea_gallery_request
 )
 
 /**
@@ -119,10 +120,13 @@ fun AskAiScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ask your AI app") },
+                title = { Text(stringResource(R.string.home_ask_ai)) },
                 navigationIcon = {
                     IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.navigate_back)
+                        )
                     }
                 }
             )
@@ -141,14 +145,22 @@ fun AskAiScreen(
                 OutlinedTextField(
                     value = request,
                     onValueChange = onRequestChange,
-                    label = { Text(if (changeCurrent) "What to change" else "Describe your app") },
+                    label = {
+                        Text(
+                            stringResource(
+                                if (changeCurrent) R.string.ask_ai_label_change else R.string.ask_ai_label_new
+                            )
+                        )
+                    },
                     placeholder = {
                         Text(
-                            if (changeCurrent) {
-                                "Add a screen with the opening hours"
-                            } else {
-                                "A list of my favourite books, with a screen for each"
-                            }
+                            stringResource(
+                                if (changeCurrent) {
+                                    R.string.ask_ai_placeholder_change
+                                } else {
+                                    R.string.ask_ai_placeholder_new
+                                }
+                            )
                         )
                     },
                     shape = RoundedCornerShape(16.dp),
@@ -162,9 +174,7 @@ fun AskAiScreen(
             HowItWorks()
             Note(
                 Icons.Filled.Info,
-                "About ${NumberFormat.getIntegerInstance().format(
-                    tokens
-                )} tokens: your AI app reads them before the chat starts.",
+                stringResource(R.string.ask_ai_tokens, NumberFormat.getIntegerInstance().format(tokens)),
                 textTag = "ai-token-estimate"
             )
             OutlinedButton(
@@ -179,7 +189,7 @@ fun AskAiScreen(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("See what's sent")
+                Text(stringResource(R.string.ask_ai_see_sent))
             }
         }
     }
@@ -196,7 +206,9 @@ private fun SendBar(onShare: () -> Unit, onCopy: () -> Unit) {
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
         ) {
-            OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = onCopy) { Text("Copy") }
+            OutlinedButton(shapes = ButtonDefaults.shapes(), onClick = onCopy) {
+                Text(stringResource(R.string.ask_ai_copy))
+            }
             Button(
                 shapes = ButtonDefaults.shapes(),
                 onClick = onShare,
@@ -204,7 +216,7 @@ private fun SendBar(onShare: () -> Unit, onCopy: () -> Unit) {
             ) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Share to AI app…")
+                Text(stringResource(R.string.ask_ai_share))
             }
         }
     }
@@ -240,10 +252,13 @@ private fun PromptPreview(prompt: String, tokens: Int, onShare: () -> Unit, onCo
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("What's sent") },
+                title = { Text(stringResource(R.string.ask_ai_sent_title)) },
                 navigationIcon = {
                     IconButton(shapes = IconButtonDefaults.shapes(), onClick = onClose) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.navigate_back)
+                        )
                     }
                 }
             )
@@ -260,16 +275,20 @@ private fun PromptPreview(prompt: String, tokens: Int, onShare: () -> Unit, onCo
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Note(
                             Icons.Filled.Info,
-                            "${NumberFormat.getIntegerInstance().format(prompt.length)} characters, " +
-                                "about ${NumberFormat.getIntegerInstance().format(
-                                    tokens
-                                )} tokens. Your request and app are at the end."
+                            stringResource(
+                                R.string.ask_ai_sent_size,
+                                NumberFormat.getIntegerInstance().format(prompt.length),
+                                NumberFormat.getIntegerInstance().format(tokens)
+                            )
                         )
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
                         ) {
-                            listOf(true to "Formatted", false to "As sent").forEachIndexed { index, (styled, label) ->
+                            listOf(true to R.string.ask_ai_formatted, false to R.string.ask_ai_as_sent).forEachIndexed {
+                                    index,
+                                    (styled, label)
+                                ->
                                 ToggleButton(
                                     checked = formatted == styled,
                                     onCheckedChange = { formatted = styled },
@@ -290,7 +309,7 @@ private fun PromptPreview(prompt: String, tokens: Int, onShare: () -> Unit, onCo
                                             role = Role.RadioButton
                                             selected = formatted == styled
                                         }
-                                ) { Text(label, maxLines = 1) }
+                                ) { Text(stringResource(label), maxLines = 1) }
                             }
                         }
                     }
@@ -339,12 +358,12 @@ private fun Header(changeCurrent: Boolean) {
         ) { Text("✨", fontSize = 26.sp) }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
-                if (changeCurrent) "What should change?" else "What should your app do?",
+                stringResource(if (changeCurrent) R.string.ask_ai_header_change else R.string.ask_ai_header_new),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                "Your AI app writes it, Appkin runs it.",
+                stringResource(R.string.ask_ai_header_text),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -355,7 +374,10 @@ private fun Header(changeCurrent: Boolean) {
 @Composable
 private fun Ideas(onPick: (String) -> Unit) {
     Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        IDEAS.forEach { (name, request) -> SuggestionChip(onClick = { onPick(request) }, label = { Text(name) }) }
+        IDEAS.forEach { (name, request) ->
+            val text = stringResource(request)
+            SuggestionChip(onClick = { onPick(text) }, label = { Text(stringResource(name)) })
+        }
     }
 }
 
@@ -372,9 +394,9 @@ private fun ChangeCurrent(checked: Boolean, onChange: (Boolean) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Change the current app", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.ask_ai_change_current), style = MaterialTheme.typography.titleSmall)
                 Text(
-                    "Your AI app gets this app too, and changes it instead of starting over.",
+                    stringResource(R.string.ask_ai_change_current_text),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -393,12 +415,15 @@ private fun ChangeCurrent(checked: Boolean, onChange: (Boolean) -> Unit) {
 private fun Instructions(withLinks: Boolean, onChange: (Boolean) -> Unit) {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Instructions", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.ask_ai_instructions), style = MaterialTheme.typography.titleSmall)
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)
             ) {
-                listOf(false to "Send all", true to "Short + links").forEachIndexed { index, (short, label) ->
+                listOf(false to R.string.ask_ai_send_all, true to R.string.ask_ai_short_links).forEachIndexed {
+                        index,
+                        (short, label)
+                    ->
                     ToggleButton(
                         checked = withLinks == short,
                         onCheckedChange = { onChange(short) },
@@ -420,15 +445,11 @@ private fun Instructions(withLinks: Boolean, onChange: (Boolean) -> Unit) {
                                 role = Role.RadioButton
                                 selected = withLinks == short
                             }
-                    ) { Text(label, maxLines = 1) }
+                    ) { Text(stringResource(label), maxLines = 1) }
                 }
             }
             Text(
-                if (withLinks) {
-                    "The rules and a list of every property, with links to the details: shorter, for AI apps that can open links."
-                } else {
-                    "Every rule, property and example in the chat: longer, but works with any AI app."
-                },
+                stringResource(if (withLinks) R.string.ask_ai_links_text else R.string.ask_ai_all_text),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -440,14 +461,11 @@ private fun Instructions(withLinks: Boolean, onChange: (Boolean) -> Unit) {
 private fun HowItWorks() {
     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("How it works", style = MaterialTheme.typography.titleSmall)
-            Step(1, "Share this to your AI app, such as ChatGPT, Claude or Gemini.")
-            Step(2, "Chat there until you like the result.")
-            Step(
-                3,
-                "Bring it back: share or copy the answer here, or open the file it makes. Appkin checks it and opens it, ready to run."
-            )
-            Note(Icons.Filled.Lock, "Appkin has no AI inside, and sends nothing anywhere else.")
+            Text(stringResource(R.string.how_title), style = MaterialTheme.typography.titleSmall)
+            Step(1, stringResource(R.string.ask_ai_step_share))
+            Step(2, stringResource(R.string.ask_ai_step_chat))
+            Step(3, stringResource(R.string.ask_ai_step_back))
+            Note(Icons.Filled.Lock, stringResource(R.string.ask_ai_no_ai))
         }
     }
 }

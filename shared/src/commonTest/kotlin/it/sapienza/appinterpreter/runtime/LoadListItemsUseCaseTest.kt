@@ -147,8 +147,11 @@ class LoadListItemsUseCaseTest {
     fun connectionProblemsReadPlainly() {
         assertEquals(
             "Unable to load data. Check your connection and try again.",
-            loadItems.errorMessage("Unable to resolve host \"example.com\"")
+            loadItems.errorMessage("Unable to resolve host \"example.com\"", EnglishRuntimeStrings)
         )
-        assertEquals("Unable to load data. Request failed with 500", loadItems.errorMessage("Request failed with 500"))
+        assertEquals(
+            "Unable to load data. Request failed with 500",
+            loadItems.errorMessage("Request failed with 500", EnglishRuntimeStrings)
+        )
     }
 }

@@ -37,7 +37,7 @@ class JsonHttpClientTest {
         val answer = client().request("https://example.com/a?k=__KEY__", post = false, body = null)
         assertEquals("true", answer["ok"]?.jsonPrimitive?.content)
         assertEquals(
-            "GET https://example.com/a?k=secret Appkin/1.2 (Test; https://github.com/wakirox/JsonAppCreator-Android) ",
+            "GET https://example.com/a?k=secret Appkin/1.2 (Test; https://github.com/wakirox/JsonAppCreator) ",
             requests.single()
         )
     }

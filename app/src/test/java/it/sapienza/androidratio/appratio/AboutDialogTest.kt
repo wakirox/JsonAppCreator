@@ -33,7 +33,7 @@ class AboutDialogTest {
         openAbout()
         composeRule.onNodeWithText("Terms of use").performScrollTo().performClick()
         composeRule.onNodeWithText(
-            "You are responsible for the apps you run and share",
+            "You are responsible for the apps you open and share",
             substring = true
         ).assertExists()
     }

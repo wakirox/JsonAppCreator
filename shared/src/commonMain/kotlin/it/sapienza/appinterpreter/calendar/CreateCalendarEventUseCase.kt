@@ -17,7 +17,9 @@ class CreateCalendarEventUseCase(private val zone: () -> TimeZone = { TimeZone.c
         class Ready(val entry: CalendarEntry) : Result
 
         /** The date or time isn't dd/MM/yyyy and HH:mm. */
-        class BadDate(val message: String) : Result
+
+        // The date (and time) as written, which isn't dd/MM/yyyy (HH:mm).
+        class BadDate(val value: String) : Result
     }
 
     operator fun invoke(event: CalendarEvent, data: JsonObject?): Result {
@@ -29,11 +31,7 @@ class CreateCalendarEventUseCase(private val zone: () -> TimeZone = { TimeZone.c
             FormDates.parseDateTime("$date $time")?.toInstant(zone())?.toEpochMilliseconds()
         } else {
             FormDates.startOfDayMillis(date, TimeZone.UTC)
-        } ?: return Result.BadDate(
-            "The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"$date${time?.let {
-                " $it"
-            }.orEmpty()}\"."
-        )
+        } ?: return Result.BadDate(date + time?.let { " $it" }.orEmpty())
         val end = start + if (time != null) (event.durationMinutes ?: 60) * 60_000L else 24 * 3_600_000L
         return Result.Ready(
             CalendarEntry(

@@ -29,7 +29,12 @@ Master may have moved on: merging never has to wait for a release. It reads the 
 `$APPKIN_KEYSTORE_PROPERTIES` (by default `~/.android/keys/rainy-keystore.properties`:
 `storeFile`, `storePassword`, `keyAlias`, `keyPassword`) and hands them to Gradle through
 the environment only; they are never printed. API keys for the bundled examples come from
-the machine's Gradle properties (`configApiKeysFile`), as in any local build.
+the machine's Gradle properties (`configApiKeysFile` in `$GRADLE_USER_HOME/gradle.properties`,
+default `~/.gradle/gradle.properties`, or the project's `gradle.properties`), or from
+`APP_CONFIG_KEYS_FILE`, `APP_CONFIG_KEYS_BASE64` or `TMDB_API_KEY`, as in any local build.
+The script refuses to build when none is set or the referenced file is missing; `--allow-missing-keys`
+overrides that for one run only (it is never stored). The check is in `tools/release-keys.sh`, tested
+by `tools/release-keys-test.sh`.
 
 ## Version and tag strategy
 

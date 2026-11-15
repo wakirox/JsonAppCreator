@@ -49,9 +49,9 @@ object AiContext {
         if (links == null) return full
         val anchors = GitHubAnchors.of(full)
         val intro =
-            "Appkin is an Android app that turns a JSON configuration into a native app. You write the " +
-                "configuration; the app validates it against the v3 schema and runs it. This is the short version of " +
-                "the contract: the rules, then every view, form field and event with its properties. The complete " +
+            "Appkin is an app that turns a JSON configuration into a native app. You write the " +
+                "configuration; the app validates it against the v3 schema and shows it. This is the short version " +
+                "of the contract: the rules, then every view, form field and event with its properties. The complete " +
                 "reference, with what each property means and three full examples, is at ${links.raw}. If you can " +
                 "open links, read it, or the linked part, for anything you're unsure of. Use only what they describe."
         return document(
@@ -64,8 +64,8 @@ object AiContext {
     }
 
     private const val FULL_INTRO =
-        "Appkin is an Android app that turns a JSON configuration into a native app. You write the " +
-            "configuration; the app validates it against the v3 schema and runs it. This document is the complete " +
+        "Appkin is an app that turns a JSON configuration into a native app. You write the " +
+            "configuration; the app validates it against the v3 schema and shows it. This document is the complete " +
             "contract: use only what it describes."
 
     private fun document(intro: String, rules: String, reference: String, currentApp: String?, request: String?) =
@@ -104,7 +104,7 @@ object AiContext {
                 "If you can create files, give me the complete configuration as a downloadable file named " +
                     "${fileName(currentApp)}, containing only the JSON. If you can't, reply with only the " +
                     "complete JSON, starting with { and ending with }: no comments or explanations. I will open your " +
-                    "file or share your answer in the Appkin app, which runs it; if it reports problems, I " +
+                    "file or share your answer in the Appkin app, which shows it; if it reports problems, I " +
                     "will send them to you to fix."
             )
             appendLine()

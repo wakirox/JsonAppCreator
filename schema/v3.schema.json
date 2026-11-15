@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/wakirox/JsonAppCreator-Android/master/schema/v3.schema.json",
+  "$id": "https://raw.githubusercontent.com/wakirox/JsonAppCreator/master/schema/v3.schema.json",
   "title": "Appkin configuration v3",
   "description": "Machine-readable contract for an Appkin v3 application. schemaVersion is optional for backward compatibility; new configurations should set it to 3.",
   "type": "object",

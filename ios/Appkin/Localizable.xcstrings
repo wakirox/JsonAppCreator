@@ -1,0 +1,1951 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "%@ characters, about %@ tokens. Your request and app are at the end.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ characters, about %@ tokens. Your request and app are at the end."
+          }
+        }
+      }
+    },
+    "%@ is no longer on this phone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is no longer on this phone"
+          }
+        }
+      }
+    },
+    "%@, not saved yet. ▶ opens it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, not saved yet. ▶ opens it."
+          }
+        }
+      }
+    },
+    "%@, not saved yet. ▶ opens it; problems can go back to your AI app from the bar below.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, not saved yet. ▶ opens it; problems can go back to your AI app from the bar below."
+          }
+        }
+      }
+    },
+    "%d.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d."
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld problems": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld problem"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld problems"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld problems to fix first": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld problem to fix first"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld problems to fix first"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "25 famous paintings and prints, with maps, links and your favourites": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "25 famous paintings and prints, with maps, links and your favourites"
+          }
+        }
+      }
+    },
+    "A JSON file is plain text that describes an app: its screens, the words and pictures on them, lists, forms and buttons, and what happens when you tap something.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A JSON file is plain text that describes an app: its screens, the words and pictures on them, lists, forms and buttons, and what happens when you tap something."
+          }
+        }
+      }
+    },
+    "A gallery of famous paintings from a public museum API, with a page for each": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A gallery of famous paintings from a public museum API, with a page for each"
+          }
+        }
+      }
+    },
+    "A list of my favourite books, with a screen for each": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A list of my favourite books, with a screen for each"
+          }
+        }
+      }
+    },
+    "A list of my favourite books, with a screen for each: cover, author and my notes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A list of my favourite books, with a screen for each: cover, author and my notes"
+          }
+        }
+      }
+    },
+    "A photo couldn't be added.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A photo couldn't be added."
+          }
+        }
+      }
+    },
+    "A sign-up form for our 10 km summer race, with name, email, date of birth and T-shirt size": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A sign-up form for our 10 km summer race, with name, email, date of birth and T-shirt size"
+          }
+        }
+      }
+    },
+    "API keys": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API keys"
+          }
+        }
+      }
+    },
+    "About %@ tokens: your AI app reads them before the chat starts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About %@ tokens: your AI app reads them before the chat starts."
+          }
+        }
+      }
+    },
+    "About Appkin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About Appkin"
+          }
+        }
+      }
+    },
+    "Add a screen with the opening hours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a screen with the opening hours"
+          }
+        }
+      }
+    },
+    "Add more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add more"
+          }
+        }
+      }
+    },
+    "Add photos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add photos"
+          }
+        }
+      }
+    },
+    "Add tag": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add tag"
+          }
+        }
+      }
+    },
+    "An error occurred": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An error occurred"
+          }
+        }
+      }
+    },
+    "App": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        }
+      }
+    },
+    "App ideas": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App ideas"
+          }
+        }
+      }
+    },
+    "Appkin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin"
+          }
+        }
+      }
+    },
+    "Appkin %@ on iOS %@: a problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin %@ on iOS %@: a problem"
+          }
+        }
+      }
+    },
+    "Appkin has no AI inside, and sends nothing anywhere else.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin has no AI inside, and sends nothing anywhere else."
+          }
+        }
+      }
+    },
+    "Appkin only opens web, map, phone and email addresses, not %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin only opens web, map, phone and email addresses, not %@"
+          }
+        }
+      }
+    },
+    "Appkin shows it": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin shows it"
+          }
+        }
+      }
+    },
+    "Ask an AI app to fix them…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask an AI app to fix them…"
+          }
+        }
+      }
+    },
+    "Ask your AI app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask your AI app"
+          }
+        }
+      }
+    },
+    "Ask your AI app to change it…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask your AI app to change it…"
+          }
+        }
+      }
+    },
+    "Ask your AI app…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask your AI app…"
+          }
+        }
+      }
+    },
+    "Attach files": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attach files"
+          }
+        }
+      }
+    },
+    "Attach more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attach more"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "Bring it back: copy the answer, or open the file it makes. Appkin checks it and opens it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bring it back: copy the answer, or open the file it makes. Appkin checks it and opens it."
+          }
+        }
+      }
+    },
+    "By %@ · version %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By %@ · version %@"
+          }
+        }
+      }
+    },
+    "Cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Change an example with Edit this app in its ••• menu, and your version is kept under Your apps.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change an example with Edit this app in its ••• menu, and your version is kept under Your apps."
+          }
+        }
+      }
+    },
+    "Change the current app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the current app"
+          }
+        }
+      }
+    },
+    "Chat there until you like the result.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chat there until you like the result."
+          }
+        }
+      }
+    },
+    "Checking…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        }
+      }
+    },
+    "Choose date": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose date"
+          }
+        }
+      }
+    },
+    "Choose time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose time"
+          }
+        }
+      }
+    },
+    "Clear %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear %@"
+          }
+        }
+      }
+    },
+    "Close": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "Copied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        }
+      }
+    },
+    "Copied: paste it into your AI app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied: paste it into your AI app"
+          }
+        }
+      }
+    },
+    "Copy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
+    "Copy the AI's JSON answer directly in your AI app, then paste it here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the AI's JSON answer directly in your AI app, then paste it here."
+          }
+        }
+      }
+    },
+    "Couldn't open the file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open the file"
+          }
+        }
+      }
+    },
+    "Couldn't read the shared chat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the shared chat"
+          }
+        }
+      }
+    },
+    "Credits": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Credits"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "Delete %@?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete %@?"
+          }
+        }
+      }
+    },
+    "Discard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard"
+          }
+        }
+      }
+    },
+    "Discard changes?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard changes?"
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Edit this app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit this app"
+          }
+        }
+      }
+    },
+    "Enter the keys this app needs. They are kept in your device's Keychain and are not added to the JSON.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the keys this app needs. They are kept in your device's Keychain and are not added to the JSON."
+          }
+        }
+      }
+    },
+    "Every app is one file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every app is one file"
+          }
+        }
+      }
+    },
+    "Every app you open is kept under Your apps, so you can come back to it here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every app you open is kept under Your apps, so you can come back to it here."
+          }
+        }
+      }
+    },
+    "Every rule, property and example in the chat: longer, but works with any AI app.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every rule, property and example in the chat: longer, but works with any AI app."
+          }
+        }
+      }
+    },
+    "Examples": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Examples"
+          }
+        }
+      }
+    },
+    "Fix the JSON syntax first": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fix the JSON syntax first"
+          }
+        }
+      }
+    },
+    "Form fields (inside formElements)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Form fields (inside formElements)"
+          }
+        }
+      }
+    },
+    "Format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format"
+          }
+        }
+      }
+    },
+    "From your AI app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your AI app"
+          }
+        }
+      }
+    },
+    "Get files your way": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get files your way"
+          }
+        }
+      }
+    },
+    "Got your AI app's answer? Copy it there, then": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got your AI app's answer? Copy it there, then"
+          }
+        }
+      }
+    },
+    "Home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        }
+      }
+    },
+    "How it works": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How it works"
+          }
+        }
+      }
+    },
+    "Image unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image unavailable"
+          }
+        }
+      }
+    },
+    "Insert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insert"
+          }
+        }
+      }
+    },
+    "Inside an app, its ••• menu lets you edit it, ask your AI app to change it, share it, or come back here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inside an app, its ••• menu lets you edit it, ask your AI app to change it, share it, or come back here."
+          }
+        }
+      }
+    },
+    "Instructions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instructions"
+          }
+        }
+      }
+    },
+    "It connects to: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It connects to: %@"
+          }
+        }
+      }
+    },
+    "It doesn't connect to any website.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It doesn't connect to any website."
+          }
+        }
+      }
+    },
+    "It needs your own API key for %@: keys never travel with a shared app.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It needs your own API key for %@: keys never travel with a shared app."
+          }
+        }
+      }
+    },
+    "It replaces the text in the editor. The check then shows anything to fix.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It replaces the text in the editor. The check then shows anything to fix."
+          }
+        }
+      }
+    },
+    "It's removed from Your apps.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It's removed from Your apps."
+          }
+        }
+      }
+    },
+    "JSON format guide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JSON format guide"
+          }
+        }
+      }
+    },
+    "Keep both": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep both"
+          }
+        }
+      }
+    },
+    "Keep editing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep editing"
+          }
+        }
+      }
+    },
+    "Keep the ones you like": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the ones you like"
+          }
+        }
+      }
+    },
+    "Key": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key"
+          }
+        }
+      }
+    },
+    "Leave blank to keep the saved value": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave blank to keep the saved value"
+          }
+        }
+      }
+    },
+    "Line %lld: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Line %lld: %@"
+          }
+        }
+      }
+    },
+    "Load app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load app"
+          }
+        }
+      }
+    },
+    "Look at it in the editor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look at it in the editor"
+          }
+        }
+      }
+    },
+    "Masterpieces": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masterpieces"
+          }
+        }
+      }
+    },
+    "Masterpieces shows public-domain works; the images come from Wikimedia Commons.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masterpieces shows public-domain works; the images come from Wikimedia Commons."
+          }
+        }
+      }
+    },
+    "Menu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu"
+          }
+        }
+      }
+    },
+    "More": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "Movies": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Movies"
+          }
+        }
+      }
+    },
+    "My family recipes, searchable, each with its ingredients and steps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My family recipes, searchable, each with its ingredients and steps"
+          }
+        }
+      }
+    },
+    "New app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New app"
+          }
+        }
+      }
+    },
+    "No JSON in the clipboard: copy the AI's answer first": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No JSON in the clipboard: copy the AI's answer first"
+          }
+        }
+      }
+    },
+    "No ads, no account and no data collected. The format reference and more examples are on the website.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No ads, no account and no data collected. The format reference and more examples are on the website."
+          }
+        }
+      }
+    },
+    "No app to open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No app to open"
+          }
+        }
+      }
+    },
+    "No email app on this iPhone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No email app on this iPhone"
+          }
+        }
+      }
+    },
+    "No problems: ready to open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No problems: ready to open"
+          }
+        }
+      }
+    },
+    "Not ticked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not ticked"
+          }
+        }
+      }
+    },
+    "Not yet on iOS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not yet on iOS"
+          }
+        }
+      }
+    },
+    "Not yet on iOS: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not yet on iOS: %@"
+          }
+        }
+      }
+    },
+    "Notes on your app ideas, with photos, sorted by priority and kept on the phone": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes on your app ideas, with photos, sorted by priority and kept on the phone"
+          }
+        }
+      }
+    },
+    "Nothing to change: this item is no longer saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to change: this item is no longer saved"
+          }
+        }
+      }
+    },
+    "Nothing to paste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to paste"
+          }
+        }
+      }
+    },
+    "Nothing to show": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to show"
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Open": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        }
+      }
+    },
+    "Open a file and Appkin draws its screens at once, with its own built-in parts: nothing in the file runs as code. Nothing to install, build or sign up for.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a file and Appkin draws its screens at once, with its own built-in parts: nothing in the file runs as code. Nothing to install, build or sign up for."
+          }
+        }
+      }
+    },
+    "Open a file…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a file…"
+          }
+        }
+      }
+    },
+    "Opened %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened %@"
+          }
+        }
+      }
+    },
+    "Opened file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened file"
+          }
+        }
+      }
+    },
+    "Opened from a file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened from a file"
+          }
+        }
+      }
+    },
+    "Opened just now": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened just now"
+          }
+        }
+      }
+    },
+    "Paste answer from your AI app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste answer from your AI app"
+          }
+        }
+      }
+    },
+    "Pasted from your AI app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasted from your AI app"
+          }
+        }
+      }
+    },
+    "Photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo"
+          }
+        }
+      }
+    },
+    "Photo %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo %lld"
+          }
+        }
+      }
+    },
+    "Please complete: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please complete: %@"
+          }
+        }
+      }
+    },
+    "Popular films and the people in them, from TMDB": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Popular films and the people in them, from TMDB"
+          }
+        }
+      }
+    },
+    "Questions, or an app or its content to report: %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questions, or an app or its content to report: %@"
+          }
+        }
+      }
+    },
+    "Read from %@ shared chat": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read from %@ shared chat"
+          }
+        }
+      }
+    },
+    "Remove %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove %@"
+          }
+        }
+      }
+    },
+    "Remove photo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove photo"
+          }
+        }
+      }
+    },
+    "Replace": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        }
+      }
+    },
+    "Report a problem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report a problem"
+          }
+        }
+      }
+    },
+    "Request failed with %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request failed with %@"
+          }
+        }
+      }
+    },
+    "Save as a file…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as a file…"
+          }
+        }
+      }
+    },
+    "See what's sent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See what's sent"
+          }
+        }
+      }
+    },
+    "Send all": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send all"
+          }
+        }
+      }
+    },
+    "Send problems to your AI app…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send problems to your AI app…"
+          }
+        }
+      }
+    },
+    "Send to your AI app…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send to your AI app…"
+          }
+        }
+      }
+    },
+    "Share": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        }
+      }
+    },
+    "Share this app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share this app"
+          }
+        }
+      }
+    },
+    "Share this to your AI app, such as ChatGPT, Claude or Gemini.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share this to your AI app, such as ChatGPT, Claude or Gemini."
+          }
+        }
+      }
+    },
+    "Share to AI app…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share to AI app…"
+          }
+        }
+      }
+    },
+    "Short + links": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Short + links"
+          }
+        }
+      }
+    },
+    "Show more": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show more"
+          }
+        }
+      }
+    },
+    "Sort": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort"
+          }
+        }
+      }
+    },
+    "TMDB logo": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TMDB logo"
+          }
+        }
+      }
+    },
+    "Terms of use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms of use"
+          }
+        }
+      }
+    },
+    "That file has no JSON app in it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That file has no JSON app in it."
+          }
+        }
+      }
+    },
+    "That's a link to the chat, not the AI's answer. In your AI app, copy the answer that contains the JSON, then paste it here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That's a link to the chat, not the AI's answer. In your AI app, copy the answer that contains the JSON, then paste it here."
+          }
+        }
+      }
+    },
+    "The Movies example uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Movies example uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB."
+          }
+        }
+      }
+    },
+    "The apps you open or make are kept here. Start with an example below.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The apps you open or make are kept here. Start with an example below."
+          }
+        }
+      }
+    },
+    "The clipboard is empty: copy the answer in your AI app first": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The clipboard is empty: copy the answer in your AI app first"
+          }
+        }
+      }
+    },
+    "The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"%@\".": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The event's date and time must be dd/MM/yyyy and HH:mm, but they are \"%@\"."
+          }
+        }
+      }
+    },
+    "The rules and a list of every property, with links to the details: shorter, for AI apps that can open links.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The rules and a list of every property, with links to the details: shorter, for AI apps that can open links."
+          }
+        }
+      }
+    },
+    "The saved configuration is invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved configuration is invalid"
+          }
+        }
+      }
+    },
+    "Then": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Then"
+          }
+        }
+      }
+    },
+    "This alert has no message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This alert has no message"
+          }
+        }
+      }
+    },
+    "This app hasn't been opened or saved.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This app hasn't been opened or saved."
+          }
+        }
+      }
+    },
+    "This image doesn't load (%1$@): %2$@. Check the address, or use another picture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This image doesn't load (%1$@): %2$@. Check the address, or use another picture"
+          }
+        }
+      }
+    },
+    "This item has no %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This item has no %@"
+          }
+        }
+      }
+    },
+    "Ticked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ticked"
+          }
+        }
+      }
+    },
+    "Try again": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
+    "Try an example below, open a file someone sent you, write one in the built-in editor, or ask the AI app you already use (ChatGPT, Gemini, Claude…) to make one for you.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try an example below, open a file someone sent you, write one in the built-in editor, or ask the AI app you already use (ChatGPT, Gemini, Claude…) to make one for you."
+          }
+        }
+      }
+    },
+    "Unable to load data.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load data."
+          }
+        }
+      }
+    },
+    "Unable to load data. Check your connection and try again.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load data. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "Unable to read the selected file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to read the selected file"
+          }
+        }
+      }
+    },
+    "Unable to restore screen data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to restore screen data"
+          }
+        }
+      }
+    },
+    "Unrecognized error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unrecognized error"
+          }
+        }
+      }
+    },
+    "Use the answer from your AI app?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the answer from your AI app?"
+          }
+        }
+      }
+    },
+    "Version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        }
+      }
+    },
+    "View '%@' does not exist in this configuration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View '%@' does not exist in this configuration"
+          }
+        }
+      }
+    },
+    "Views": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Views"
+          }
+        }
+      }
+    },
+    "What should change?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What should change?"
+          }
+        }
+      }
+    },
+    "What should your app do?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What should your app do?"
+          }
+        }
+      }
+    },
+    "What you pasted has no JSON app in it. In your AI app, copy the answer that contains the JSON, then paste it here.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What you pasted has no JSON app in it. In your AI app, copy the answer that contains the JSON, then paste it here."
+          }
+        }
+      }
+    },
+    "What's sent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's sent"
+          }
+        }
+      }
+    },
+    "Write one yourself: read the JSON format guide": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write one yourself: read the JSON format guide"
+          }
+        }
+      }
+    },
+    "Write to %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to %@"
+          }
+        }
+      }
+    },
+    "You already have an app called %@. Replace it, or keep both.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You already have an app called %@. Replace it, or keep both."
+          }
+        }
+      }
+    },
+    "Your AI app gets this app too, and changes it instead of starting over.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your AI app gets this app too, and changes it instead of starting over."
+          }
+        }
+      }
+    },
+    "Your AI app writes it, Appkin shows it.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your AI app writes it, Appkin shows it."
+          }
+        }
+      }
+    },
+    "Your apps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your apps"
+          }
+        }
+      }
+    },
+    "Your edits haven't been opened or saved.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your edits haven't been opened or saved."
+          }
+        }
+      }
+    },
+    "error %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "error %@"
+          }
+        }
+      }
+    },
+    "no answer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no answer"
+          }
+        }
+      }
+    },
+    "terms.body": {
+      "comment": "Terms of use, as on the other platform minus platform names.",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appkin shows apps described in JSON files that you make, open or are sent. Appkin has no gallery of apps: apps travel only as files, between people who choose to share them.\n\nYou are responsible for the apps you open and share and for what they load and show. Use only text, pictures and data you have the right to use, and follow the terms of the services an app connects to, such as an API's.\n\nApps made with an AI app can contain mistakes: check what they show before relying on it.\n\nThe examples use public-domain works from Wikimedia Commons, and data and images from TMDB under its terms; Appkin is not endorsed by TMDB.\n\nAppkin is free, has no ads and collects no data. It is open source under the MIT licence and provided as it is, without warranty.\n\nTo report an app, its content or a problem, write to info@wakirox.app."
+          }
+        }
+      }
+    },
+    "wakirox.app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wakirox.app"
+          }
+        }
+      }
+    },
+    "•": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "•"
+          }
+        }
+      }
+    },
+    "🍝 Recipes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🍝 Recipes"
+          }
+        }
+      }
+    },
+    "🏃 Race sign-up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 Race sign-up"
+          }
+        }
+      }
+    },
+    "📚 Book list": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "📚 Book list"
+          }
+        }
+      }
+    },
+    "🖼️ Art gallery": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🖼️ Art gallery"
+          }
+        }
+      }
+    }
+  }
+}

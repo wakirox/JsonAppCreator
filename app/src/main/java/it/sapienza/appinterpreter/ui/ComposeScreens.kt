@@ -41,9 +41,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import it.sapienza.androidratio.appratio.R
 
 /** Material 3 Expressive: the wallpaper's colours where the phone offers them, and springy motion. */
 @Composable
@@ -96,7 +98,7 @@ fun PhotoScreen(url: String?, onBack: () -> Unit) {
             // The tag marks a loaded photo, which tests wait for.
             onSuccess = { loaded = true },
             loading = { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { LoadingIndicator() } },
-            error = { Text("Image unavailable", modifier = Modifier.padding(24.dp)) }
+            error = { Text(stringResource(R.string.image_unavailable), modifier = Modifier.padding(24.dp)) }
         )
         TopAppBar(
             title = {},
@@ -104,7 +106,7 @@ fun PhotoScreen(url: String?, onBack: () -> Unit) {
                 IconButton(shapes = IconButtonDefaults.shapes(), onClick = onBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(R.string.navigate_back)
                     )
                 }
             },

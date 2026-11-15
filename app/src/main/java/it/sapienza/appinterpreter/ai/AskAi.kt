@@ -32,8 +32,8 @@ object AskAi {
 
     /** docs/AI_CONTEXT.md on GitHub at the commit this app was built from, which the short instructions link to. */
     val links = AiContext.Links(
-        page = "https://github.com/wakirox/JsonAppCreator-Android/blob/${BuildConfig.AI_DOCS_REF}/docs/AI_CONTEXT.md",
-        raw = "https://raw.githubusercontent.com/wakirox/JsonAppCreator-Android/" +
+        page = "https://github.com/wakirox/JsonAppCreator/blob/${BuildConfig.AI_DOCS_REF}/docs/AI_CONTEXT.md",
+        raw = "https://raw.githubusercontent.com/wakirox/JsonAppCreator/" +
             "${BuildConfig.AI_DOCS_REF}/docs/AI_CONTEXT.md"
     )
 
@@ -70,7 +70,7 @@ object AskAi {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, text)
         }
-        val chooser = Intent.createChooser(send, "Share to your AI app")
+        val chooser = Intent.createChooser(send, context.getString(R.string.ask_ai_share_chooser))
         // Not to Appkin itself, which receives AI answers through the same share sheet.
         chooser.putExtra(
             Intent.EXTRA_EXCLUDE_COMPONENTS,

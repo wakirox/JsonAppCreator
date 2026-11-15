@@ -41,6 +41,7 @@ import it.sapienza.appinterpreter.runtime.usecase.LoadListItemsUseCase
 import it.sapienza.appinterpreter.runtime.usecase.LoadScreenUseCase
 import it.sapienza.appinterpreter.runtime.usecase.LoadStoredItemsUseCase
 import it.sapienza.appinterpreter.runtime.usecase.MissingValueException
+import it.sapienza.appinterpreter.runtime.usecase.NoLongerSavedException
 import it.sapienza.appinterpreter.runtime.usecase.OpenLinkUseCase
 import it.sapienza.appinterpreter.runtime.usecase.PdfPageUseCase
 import it.sapienza.appinterpreter.runtime.usecase.SaveItemUseCase
@@ -139,8 +140,9 @@ class ScreenViewModel(
      */
     val data: StateFlow<JsonObject?> = shownData.asStateFlow()
 
-    val forms = FormsState(saved, initialFormValues, submitForm) { form -> resolve(form.action)?.event is SaveData }
-    val lists = ListsState(viewModelScope, loadListItems)
+    val forms =
+        FormsState(saved, initialFormValues, submitForm, { form -> resolve(form.action)?.event is SaveData }, strings)
+    val lists = ListsState(viewModelScope, loadListItems, strings)
 
     private val missing = MutableStateFlow(screen?.let { findMissingApiKeys() })
 
@@ -255,7 +257,7 @@ class ScreenViewModel(
                 )
             ) {
                 is CreateCalendarEventUseCase.Result.Ready -> effectChannel.trySend(Effect.AddToCalendar(result.entry))
-                is CreateCalendarEventUseCase.Result.BadDate -> alerts.show(result.message)
+                is CreateCalendarEventUseCase.Result.BadDate -> alerts.show(strings.calendarBadDate(result.value))
             }
 
             is OpenLink -> when (val result = openLink(event, event.mapping?.let { data?.getObject(it) } ?: data)) {
@@ -304,7 +306,7 @@ class ScreenViewModel(
         val ok = event.thenDoOK?.let { next -> { onEvent(next, data) } }
         // An alert that does something on OK can always be declined: Cancel then just closes it.
         val cancel = event.thenDoKO?.let { next -> { onEvent(next, data) } } ?: if (ok != null) ({ }) else null
-        alerts.show(message ?: "Missing message (check model)", ok, cancel)
+        alerts.show(message ?: strings.alertWithoutMessage, ok, cancel)
     }
 
     private fun openScreen(event: ShowView, payload: JsonObject?) {
@@ -335,7 +337,14 @@ class ScreenViewModel(
         val result = try {
             change()
         } catch (e: Exception) {
-            alerts.show(e.message ?: "An error occurred")
+            alerts.show(
+                if (e is NoLongerSavedException) {
+                    strings.itemNoLongerSaved
+                } else {
+                    e.message
+                        ?: strings.errorOccurred
+                }
+            )
             return false
         }
         thenDo?.let { onEvent(it, result) }
@@ -353,8 +362,10 @@ class ScreenViewModel(
                 throw e
             } catch (e: Exception) {
                 val message =
-                    (e as? MissingValueException)?.let { strings.valueMissing(it.path) } ?: e.message
-                        ?: "An error occurred"
+                    (e as? MissingValueException)?.let { strings.valueMissing(it.path) }
+                        ?: (e as? HttpStatusException)?.let { strings.requestFailed(it.status) }
+                        ?: e.message
+                        ?: strings.errorOccurred
                 val onError = event.onError
                 if (onError == null) {
                     alerts.show(message)

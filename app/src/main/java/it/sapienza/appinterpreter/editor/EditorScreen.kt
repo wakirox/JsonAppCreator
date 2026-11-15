@@ -63,6 +63,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontFamily
@@ -73,8 +76,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import it.sapienza.androidratio.appratio.R
 import it.sapienza.appinterpreter.ai.AskAi
 import it.sapienza.appinterpreter.json.JsonText
+import it.sapienza.appinterpreter.runtime.AndroidRuntimeStrings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -102,6 +107,7 @@ fun EditorScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val scope = rememberCoroutineScope()
     var value by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue(initialText)) }
     var issues by remember { mutableStateOf<List<EditorIssue>?>(null) }
@@ -122,7 +128,7 @@ fun EditorScreen(
         delay(CHECK_DELAY_MS)
         val found = check(value.text)
         issues = found.ifEmpty {
-            ImageLinks.problems(value.text) { url ->
+            ImageLinks.problems(value.text, AndroidRuntimeStrings(context)) { url ->
                 if (url in
                     imageStatuses
                 ) {
@@ -170,18 +176,23 @@ fun EditorScreen(
                 title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = {
                     IconButton(shapes = IconButtonDefaults.shapes(), onClick = ::leave) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.navigate_back)
+                        )
                     }
                 },
                 actions = {
                     IconButton(shapes = IconButtonDefaults.shapes(), onClick = {
                         insertOpen = true
-                    }) { Icon(Icons.Filled.Add, contentDescription = "Insert") }
+                    }) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.editor_insert)) }
                     DropdownMenu(expanded = insertOpen, onDismissRequest = { insertOpen = false }) {
                         Snippets.all.groupBy { it.formField }.toSortedMap().forEach { (formFields, group) ->
                             if (formFields) HorizontalDivider()
                             Text(
-                                if (formFields) "Form fields (inside formElements)" else "Views",
+                                stringResource(
+                                    if (formFields) R.string.editor_insert_form_fields else R.string.editor_insert_views
+                                ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -213,42 +224,42 @@ fun EditorScreen(
                                 found.firstNotNullOfOrNull { it.offset }?.let(::jumpTo)
                                 Toast.makeText(
                                     context,
-                                    problemsLabel(found.size) + " to fix first",
+                                    resources.getQuantityString(
+                                        R.plurals.editor_problems_to_fix,
+                                        found.size,
+                                        found.size
+                                    ),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
                         }
-                    }) { Icon(Icons.Filled.PlayArrow, contentDescription = "Run") }
+                    }) { Icon(Icons.Filled.PlayArrow, contentDescription = stringResource(R.string.editor_run)) }
                     IconButton(shapes = IconButtonDefaults.shapes(), onClick = {
                         moreOpen = true
-                    }) { Icon(Icons.Filled.MoreVert, contentDescription = "More") }
+                    }) { Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.editor_more)) }
                     DropdownMenu(expanded = moreOpen, onDismissRequest = { moreOpen = false }) {
-                        DropdownMenuItem(text = { Text("Format") }, onClick = {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_format)) }, onClick = {
                             moreOpen = false
                             if (runCatching { JsonText.parse(value.text) }.isFailure) {
-                                Toast.makeText(context, "Fix the JSON syntax first", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, R.string.editor_fix_syntax, Toast.LENGTH_SHORT).show()
                             } else {
                                 value = TextFieldValue(prettyJson(value.text), TextRange(0))
                             }
                         })
-                        DropdownMenuItem(text = { Text("Save as file…") }, onClick = {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_save_as)) }, onClick = {
                             moreOpen = false
                             onSaveAs(value.text)
                         })
                         HorizontalDivider()
-                        DropdownMenuItem(text = { Text("Send to your AI app…") }, onClick = {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.editor_send_to_ai)) }, onClick = {
                             moreOpen = false
                             onAskAi(value.text)
                         })
-                        DropdownMenuItem(text = { Text("Paste answer from your AI app") }, onClick = {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.menu_paste_ai)) }, onClick = {
                             moreOpen = false
                             val json = AskAi.jsonFromClipboard(context)
                             if (json == null) {
-                                Toast.makeText(
-                                    context,
-                                    "No JSON in the clipboard: copy the AI's answer first",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                Toast.makeText(context, R.string.editor_no_json_clipboard, Toast.LENGTH_LONG).show()
                             } else {
                                 pasted = json
                             }
@@ -263,8 +274,10 @@ fun EditorScreen(
             if (unsavedSource != null) {
                 Surface(color = MaterialTheme.colorScheme.secondaryContainer) {
                     Text(
-                        "$unsavedSource, not saved yet. ▶ runs it" +
-                            if (fromAiApp) "; problems can go back to your AI app from the bar below." else ".",
+                        stringResource(
+                            if (fromAiApp) R.string.editor_unsaved_ai else R.string.editor_unsaved,
+                            unsavedSource
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)
@@ -319,16 +332,18 @@ fun EditorScreen(
     pasted?.let { json ->
         AlertDialog(
             onDismissRequest = { pasted = null },
-            title = { Text("Use the answer from your AI app?") },
-            text = { Text("It replaces the text in the editor. The check then shows anything to fix.") },
+            title = { Text(stringResource(R.string.editor_use_answer_title)) },
+            text = { Text(stringResource(R.string.editor_use_answer_text)) },
             confirmButton = {
                 TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                     value = TextFieldValue(prettyJson(json), TextRange(0))
                     pasted = null
-                }) { Text("Replace") }
+                }) { Text(stringResource(R.string.received_replace)) }
             },
             dismissButton = {
-                TextButton(shapes = ButtonDefaults.shapes(), onClick = { pasted = null }) { Text("Cancel") }
+                TextButton(shapes = ButtonDefaults.shapes(), onClick = {
+                    pasted = null
+                }) { Text(stringResource(R.string.dialog_cancel)) }
             }
         )
     }
@@ -336,28 +351,24 @@ fun EditorScreen(
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("Discard changes?") },
+            title = { Text(stringResource(R.string.editor_discard_title)) },
             text = {
                 Text(
-                    if (unsavedSource !=
-                        null
-                    ) {
-                        "This app hasn't been run or saved."
-                    } else {
-                        "Your edits haven't been run or saved."
-                    }
+                    stringResource(
+                        if (unsavedSource != null) R.string.editor_discard_app else R.string.editor_discard_edits
+                    )
                 )
             },
             confirmButton = {
                 TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                     confirmDiscard = false
                     onBack()
-                }) { Text("Discard") }
+                }) { Text(stringResource(R.string.editor_discard)) }
             },
             dismissButton = {
                 TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                     confirmDiscard = false
-                }) { Text("Keep editing") }
+                }) { Text(stringResource(R.string.editor_keep_editing)) }
             }
         )
     }
@@ -434,7 +445,7 @@ private fun IssueBar(
             ) {
                 when {
                     issues == null -> Text(
-                        "Checking…",
+                        stringResource(R.string.editor_checking),
                         style = MaterialTheme.typography.labelLarge,
                         color = colors.onSurfaceVariant
                     )
@@ -447,7 +458,7 @@ private fun IssueBar(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("No problems: ready to run", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.editor_no_problems), style = MaterialTheme.typography.labelLarge)
                     }
 
                     else -> {
@@ -458,8 +469,17 @@ private fun IssueBar(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(8.dp))
+                        val count = pluralStringResource(R.plurals.editor_problems, issues.size, issues.size)
                         Text(
-                            problemsLabel(issues.size) + if (open) "" else ": " + issues.first().message,
+                            if (open) {
+                                count
+                            } else {
+                                stringResource(
+                                    R.string.editor_problem_first,
+                                    count,
+                                    issues.first().message
+                                )
+                            },
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -479,13 +499,13 @@ private fun IssueBar(
                         ),
                         modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
                     ) {
-                        Text("Send problems to your AI app…")
+                        Text(stringResource(R.string.editor_send_problems))
                     }
                 } else {
                     TextButton(shapes = ButtonDefaults.shapes(), onClick = {
                         onSendToAi(issues)
                     }, modifier = Modifier.padding(start = 4.dp)) {
-                        Text("Ask an AI app to fix them…")
+                        Text(stringResource(R.string.editor_ask_fix))
                     }
                 }
                 LazyColumn(Modifier.heightIn(max = 220.dp)) {
@@ -499,7 +519,7 @@ private fun IssueBar(
                             Text(
                                 listOfNotNull(
                                     line?.let {
-                                        "Line $it"
+                                        stringResource(R.string.editor_issue_line, it)
                                     },
                                     issue.path.takeIf { it != "$" }
                                 ).joinToString(" · "),
@@ -514,7 +534,5 @@ private fun IssueBar(
         }
     }
 }
-
-private fun problemsLabel(count: Int) = if (count == 1) "1 problem" else "$count problems"
 
 private const val CHECK_DELAY_MS = 450L

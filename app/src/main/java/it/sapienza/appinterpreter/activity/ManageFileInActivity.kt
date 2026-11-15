@@ -20,6 +20,7 @@ import it.sapienza.appinterpreter.ui.ReceivedApp
 import it.sapienza.appinterpreter.ui.ReceivedAppDialog
 import it.sapienza.appinterpreter.utils.AppLibrary
 import it.sapienza.appinterpreter.utils.DomainController
+import it.sapienza.appinterpreter.utils.PrivateStorage
 import it.sapienza.appinterpreter.utils.SharedApps
 import it.sapienza.appinterpreter.utils.of
 import it.sapienza.appinterpreter.validation.ConfigurationValidator
@@ -86,9 +87,10 @@ class ManageFileInActivity : AppCompatActivity() {
 
     private fun handleIntent() {
         try {
-            val text = intent?.data?.let(contentResolver::openInputStream)?.use {
+            val uri = intent?.data?.takeUnless { PrivateStorage.isPrivateFileUri(this, it) }
+            val text = uri?.let(contentResolver::openInputStream)?.use {
                 BufferedReader(InputStreamReader(it)).readText()
-            } ?: throw IllegalArgumentException("Unable to read the selected file")
+            } ?: throw IllegalArgumentException(getString(R.string.file_unreadable))
 
             val app = try {
                 configurationParser.parse(text)
@@ -112,10 +114,7 @@ class ManageFileInActivity : AppCompatActivity() {
         } catch (e: Exception) {
             AlertUtils.showAlert(
                 this,
-                """Configuration could not be loaded
-                    |
-                    |${e.message ?: "Unrecognized error"}
-                """.trimMargin(),
+                getString(R.string.file_load_failed, e.message ?: getString(R.string.error_unrecognized)),
                 Runnable {
                     finish()
                 }

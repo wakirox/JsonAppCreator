@@ -9,13 +9,14 @@ import kotlinx.serialization.json.JsonObject
 class SubmitFormUseCase {
 
     sealed interface Result {
-        class Missing(val message: String) : Result
+        /** The titles of the required fields still empty. */
+        class Missing(val fields: List<String>) : Result
         class Ready(val json: JsonObject) : Result
     }
 
     operator fun invoke(form: FormView, values: Map<String, Any?>): Result {
         val missing = form.formElements.filterNot { it.isSet(values[it.mapping]) }
-        if (missing.isNotEmpty()) return Result.Missing("Please complete: " + missing.joinToString { it.title })
+        if (missing.isNotEmpty()) return Result.Missing(missing.map { it.title })
         // Dotted mappings ("a.b") become nested objects; a field without a value is left out.
         val root = LinkedHashMap<String, Any>()
         form.formElements.forEach { element ->

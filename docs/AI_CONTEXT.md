@@ -1,6 +1,6 @@
 # Appkin: context for AI assistants
 
-Appkin is an Android app that turns a JSON configuration into a native app. You write the configuration; the app validates it against the v3 schema and runs it. This document is the complete contract: use only what it describes.
+Appkin is an app that turns a JSON configuration into a native app. You write the configuration; the app validates it against the v3 schema and shows it. This document is the complete contract: use only what it describes.
 
 ## Output contract
 
@@ -917,4 +917,4 @@ Submitting runs the form's action with the filled-in values, so the alert can us
 
 Create an Appkin v3 configuration for this app: <describe the app: its screens, data and actions>
 
-If you can create files, give me the complete configuration as a downloadable file named app.json, containing only the JSON. If you can't, reply with only the complete JSON, starting with { and ending with }: no comments or explanations. I will open your file or share your answer in the Appkin app, which runs it; if it reports problems, I will send them to you to fix.
+If you can create files, give me the complete configuration as a downloadable file named app.json, containing only the JSON. If you can't, reply with only the complete JSON, starting with { and ending with }: no comments or explanations. I will open your file or share your answer in the Appkin app, which shows it; if it reports problems, I will send them to you to fix.

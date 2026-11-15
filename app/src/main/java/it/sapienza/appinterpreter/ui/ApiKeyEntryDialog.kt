@@ -16,9 +16,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import it.sapienza.androidratio.appratio.R
 
 @Composable
 fun ApiKeyEntryDialog(
@@ -34,20 +36,17 @@ fun ApiKeyEntryDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Configuration API keys") },
+        title = { Text(stringResource(R.string.api_keys_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    "Enter the keys required by this configuration. They are encrypted in " +
-                        "private app storage and are not added to the JSON."
-                )
+                Text(stringResource(R.string.api_keys_text))
                 names.forEach { name ->
                     OutlinedTextField(
                         value = values[name].orEmpty(),
                         onValueChange = { values[name] = it },
                         label = { Text(name) },
                         supportingText = if (name in savedNames) {
-                            { Text("Leave blank to keep the saved value") }
+                            { Text(stringResource(R.string.api_keys_keep_saved)) }
                         } else {
                             null
                         },
@@ -64,11 +63,11 @@ fun ApiKeyEntryDialog(
                 shapes = ButtonDefaults.shapes(),
                 enabled = canConfirm,
                 onClick = { onConfirm(values.filterValues { it.isNotEmpty() }) }
-            ) { Text("Load configuration") }
+            ) { Text(stringResource(R.string.api_keys_load)) }
         },
         dismissButton = {
             TextButton(shapes = ButtonDefaults.shapes(), onClick = onDismiss, modifier = Modifier.padding(end = 4.dp)) {
-                Text("Cancel")
+                Text(stringResource(R.string.dialog_cancel))
             }
         }
     )

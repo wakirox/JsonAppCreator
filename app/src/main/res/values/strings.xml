@@ -26,7 +26,7 @@
     <string name="about_terms">Terms of use</string>
     <string name="report_subject">Appkin %1$s on Android %2$s: a problem</string>
     <string name="report_no_email">No email app on this phone: write to %1$s</string>
-    <string name="terms_of_use">Appkin runs apps described in JSON files that you make, open or are sent. Appkin has no gallery of apps: apps travel only as files, between people who choose to share them.\n\nYou are responsible for the apps you run and share and for what they load and show. Use only text, pictures and data you have the right to use, and follow the terms of the services an app connects to, such as an API\'s.\n\nApps made with an AI app can contain mistakes: check what they show before relying on it.\n\nThe examples use public-domain works from Wikimedia Commons, and data and images from TMDB under its terms; Appkin is not endorsed by TMDB.\n\nAppkin is free, has no ads and collects no data. It is open source under the MIT licence and provided as it is, without warranty.\n\nTo report an app, its content or a problem, write to info@wakirox.app.</string>
+    <string name="terms_of_use">Appkin shows apps described in JSON files that you make, open or are sent. Appkin has no gallery of apps: apps travel only as files, between people who choose to share them.\n\nYou are responsible for the apps you open and share and for what they load and show. Use only text, pictures and data you have the right to use, and follow the terms of the services an app connects to, such as an API\'s.\n\nApps made with an AI app can contain mistakes: check what they show before relying on it.\n\nThe examples use public-domain works from Wikimedia Commons, and data and images from TMDB under its terms; Appkin is not endorsed by TMDB.\n\nAppkin is free, has no ads and collects no data. It is open source under the MIT licence and provided as it is, without warranty.\n\nTo report an app, its content or a problem, write to info@wakirox.app.</string>
     <string name="about_credits">Credits</string>
     <string name="about_credits_commons">Masterpieces shows public-domain works; the images come from Wikimedia Commons.</string>
     <string name="about_tmdb_logo">TMDB logo</string>
@@ -100,6 +100,142 @@
     <string name="screen_data_unrestorable">Unable to restore screen data\n%1$s</string>
     <string name="configuration_invalid">The saved configuration is invalid\n%1$s</string>
     <string name="error_unrecognized">Unrecognized error</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="alert_without_message">This alert has no message</string>
+    <string name="form_incomplete">Please complete: %1$s</string>
+    <string name="item_no_longer_saved">Nothing to change: this item is no longer saved</string>
+    <string name="calendar_bad_date">The event\'s date and time must be dd/MM/yyyy and HH:mm, but they are \"%1$s\".</string>
+    <string name="load_failed_offline">Unable to load data. Check your connection and try again.</string>
+    <string name="load_failed">Unable to load data. %1$s</string>
+    <string name="request_failed">Request failed with %1$d</string>
+    <string name="image_does_not_load_status">This image doesn\'t load (error %1$d): %2$s. Check the address, or use another picture</string>
+    <string name="image_does_not_load_no_answer">This image doesn\'t load (no answer): %1$s. Check the address, or use another picture</string>
     <string name="shortcut_needs_name">This app needs a name to be added to the home screen</string>
     <string name="shortcuts_unsupported">Your home screen app can\'t add shortcuts</string>
+
+    <!-- Shared dialog buttons -->
+    <string name="dialog_cancel">Cancel</string>
+
+    <!-- Editor -->
+    <string name="editor_title_opened_file">Opened file</string>
+    <string name="editor_title_from_ai">From your AI app</string>
+    <string name="editor_source_file">Opened from a file</string>
+    <string name="editor_source_chat">From your shared %1$s chat</string>
+    <string name="editor_source_ai">Shared from your AI app</string>
+    <string name="editor_saved">Saved</string>
+    <string name="editor_save_failed">Couldn\'t save the file</string>
+    <string name="editor_insert">Insert</string>
+    <string name="editor_insert_form_fields">Form fields (inside formElements)</string>
+    <string name="editor_insert_views">Views</string>
+    <string name="editor_run">Open</string>
+    <string name="editor_more">More</string>
+    <string name="editor_format">Format</string>
+    <string name="editor_fix_syntax">Fix the JSON syntax first</string>
+    <string name="editor_save_as">Save as file…</string>
+    <string name="editor_send_to_ai">Send to your AI app…</string>
+    <string name="editor_no_json_clipboard">No JSON in the clipboard: copy the AI\'s answer first</string>
+    <string name="editor_unsaved">%1$s, not saved yet. ▶ opens it.</string>
+    <string name="editor_unsaved_ai">%1$s, not saved yet. ▶ opens it; problems can go back to your AI app from the bar below.</string>
+    <string name="editor_use_answer_title">Use the answer from your AI app?</string>
+    <string name="editor_use_answer_text">It replaces the text in the editor. The check then shows anything to fix.</string>
+    <string name="editor_discard_title">Discard changes?</string>
+    <string name="editor_discard_app">This app hasn\'t been opened or saved.</string>
+    <string name="editor_discard_edits">Your edits haven\'t been opened or saved.</string>
+    <string name="editor_discard">Discard</string>
+    <string name="editor_keep_editing">Keep editing</string>
+    <string name="editor_checking">Checking…</string>
+    <string name="editor_no_problems">No problems: ready to open</string>
+    <string name="editor_problem_first">%1$s: %2$s</string>
+    <string name="editor_send_problems">Send problems to your AI app…</string>
+    <string name="editor_ask_fix">Ask an AI app to fix them…</string>
+    <string name="editor_issue_line">Line %1$d</string>
+    <plurals name="editor_problems">
+        <item quantity="one">%d problem</item>
+        <item quantity="other">%d problems</item>
+    </plurals>
+    <plurals name="editor_problems_to_fix">
+        <item quantity="one">%d problem to fix first</item>
+        <item quantity="other">%d problems to fix first</item>
+    </plurals>
+    <string name="editor_nothing_title">No app to open</string>
+    <string name="editor_nothing_link">That\'s a link to the chat, not the AI\'s answer. In your AI app, share or copy the answer that contains the JSON. If you copied it, open the editor and use ⋮ → Paste answer from your AI app.</string>
+    <string name="editor_nothing_no_json">What you shared has no JSON app in it. In your AI app, share or copy the answer that contains the JSON. If you copied it, open the editor and use ⋮ → Paste answer from your AI app.</string>
+    <string name="editor_reading_chat">Reading your shared %1$s chat…</string>
+    <string name="editor_reading_chat_text">Appkin opens the public page of the link, as a browser would, and takes the last app the AI wrote in it. There is no AI in this app.</string>
+    <string name="editor_chat_failed_title">No app found in the chat</string>
+    <string name="editor_chat_failed_text">Appkin couldn\'t read an app from that %1$s chat: the page may have changed, be private, or have no JSON app in the AI\'s answers. In %1$s, copy the AI\'s answer (or open the file it made), then use Paste answer from your AI app.</string>
+
+    <!-- Opening a file -->
+    <string name="file_unreadable">Unable to read the selected file</string>
+    <string name="file_load_failed">Configuration could not be loaded\n\n%1$s</string>
+
+    <!-- Ask your AI app -->
+    <string name="ask_ai_share_chooser">Share to your AI app</string>
+    <string name="ask_ai_copied">Copied: paste it into your AI app</string>
+    <string name="ask_ai_label_change">What to change</string>
+    <string name="ask_ai_label_new">Describe your app</string>
+    <string name="ask_ai_placeholder_change">Add a screen with the opening hours</string>
+    <string name="ask_ai_placeholder_new">A list of my favourite books, with a screen for each</string>
+    <string name="ask_ai_tokens">About %1$s tokens: your AI app reads them before the chat starts.</string>
+    <string name="ask_ai_see_sent">See what\'s sent</string>
+    <string name="ask_ai_copy">Copy</string>
+    <string name="ask_ai_share">Share to AI app…</string>
+    <string name="ask_ai_sent_title">What\'s sent</string>
+    <string name="ask_ai_sent_size">%1$s characters, about %2$s tokens. Your request and app are at the end.</string>
+    <string name="ask_ai_formatted">Formatted</string>
+    <string name="ask_ai_as_sent">As sent</string>
+    <string name="ask_ai_header_change">What should change?</string>
+    <string name="ask_ai_header_new">What should your app do?</string>
+    <string name="ask_ai_header_text">Your AI app writes it, Appkin shows it.</string>
+    <string name="ask_ai_change_current">Change the current app</string>
+    <string name="ask_ai_change_current_text">Your AI app gets this app too, and changes it instead of starting over.</string>
+    <string name="ask_ai_instructions">Instructions</string>
+    <string name="ask_ai_send_all">Send all</string>
+    <string name="ask_ai_short_links">Short + links</string>
+    <string name="ask_ai_links_text">The rules and a list of every property, with links to the details: shorter, for AI apps that can open links.</string>
+    <string name="ask_ai_all_text">Every rule, property and example in the chat: longer, but works with any AI app.</string>
+    <string name="ask_ai_step_share">Share this to your AI app, such as ChatGPT, Claude or Gemini.</string>
+    <string name="ask_ai_step_chat">Chat there until you like the result.</string>
+    <string name="ask_ai_step_back">Bring it back: share or copy the answer here, or open the file it makes. Appkin checks it and opens it.</string>
+    <string name="ask_ai_no_ai">Appkin has no AI inside, and sends nothing anywhere else.</string>
+    <string name="ask_ai_idea_books">📚 Book list</string>
+    <string name="ask_ai_idea_books_request">A list of my favourite books, with a screen for each: cover, author and my notes</string>
+    <string name="ask_ai_idea_recipes">🍝 Recipes</string>
+    <string name="ask_ai_idea_recipes_request">My family recipes, searchable, each with its ingredients and steps</string>
+    <string name="ask_ai_idea_race">🏃 Race sign-up</string>
+    <string name="ask_ai_idea_race_request">A sign-up form for our 10 km summer race, with name, email, date of birth and T-shirt size</string>
+    <string name="ask_ai_idea_gallery">🖼️ Art gallery</string>
+    <string name="ask_ai_idea_gallery_request">A gallery of famous paintings from a public museum API, with a page for each</string>
+
+    <!-- API keys dialog -->
+    <string name="api_keys_title">Configuration API keys</string>
+    <string name="api_keys_text">Enter the keys required by this configuration. They are encrypted in private app storage and are not added to the JSON.</string>
+    <string name="api_keys_keep_saved">Leave blank to keep the saved value</string>
+    <string name="api_keys_load">Load configuration</string>
+
+    <!-- Form fields, lists and images in an app -->
+    <string name="image_unavailable">Image unavailable</string>
+    <string name="list_no_data">No data available</string>
+    <string name="list_show_more">Show more</string>
+    <string name="list_retry">Retry</string>
+    <string name="list_filter_all">All</string>
+    <string name="field_submit">Submit</string>
+    <string name="field_choose_date">Choose date</string>
+    <string name="field_choose_time">Choose time</string>
+    <string name="field_add_photos">Add photos</string>
+    <string name="field_add_more">Add more</string>
+    <string name="field_remove_photo">Remove photo</string>
+    <string name="field_photo_failed">A photo couldn\'t be added.</string>
+    <string name="field_add_tag">Add tag</string>
+    <string name="field_remove_named">Remove %1$s</string>
+    <string name="field_attach_files">Attach files</string>
+    <string name="field_attach_more">Attach more</string>
+
+    <!-- Attached files -->
+    <string name="files_default_name">file</string>
+    <string name="files_missing">%1$s is no longer on this phone</string>
+    <string name="files_no_app">No app on this phone opens %1$s</string>
+
+    <!-- Home-screen shortcuts -->
+    <string name="shortcut_deleted">This app was deleted in Appkin</string>
 </resources>

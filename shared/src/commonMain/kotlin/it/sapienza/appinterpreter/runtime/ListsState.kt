@@ -2,6 +2,7 @@ package it.sapienza.appinterpreter.runtime
 
 import it.sapienza.appinterpreter.model.view_model.ListView
 import it.sapienza.appinterpreter.runtime.usecase.LoadListItemsUseCase
+import it.sapienza.appinterpreter.utils.httpclient.HttpStatusException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -16,7 +17,11 @@ import kotlinx.serialization.json.JsonObject
  * A screen's lists, each loaded once in [scope]: cancelling the scope cancels their requests. A list of saved data
  * loads again whenever its collection changes, also while its screen is behind another.
  */
-class ListsState(private val scope: CoroutineScope, private val loadItems: LoadListItemsUseCase) {
+class ListsState(
+    private val scope: CoroutineScope,
+    private val loadItems: LoadListItemsUseCase,
+    private val strings: RuntimeStrings = EnglishRuntimeStrings
+) {
 
     /**
      * What a list shows: its items, a wait while they load, or why they couldn't. [canLoadMore] says there's another
@@ -131,7 +136,7 @@ class ListsState(private val scope: CoroutineScope, private val loadItems: LoadL
                 list.contentFlow.update {
                     it.copy(
                         loadingMore = false,
-                        moreErrorMessage = loadItems.errorMessage(e.message ?: "An error occurred")
+                        moreErrorMessage = loadItems.errorMessage(errorText(e), strings)
                     )
                 }
             }
@@ -169,7 +174,7 @@ class ListsState(private val scope: CoroutineScope, private val loadItems: LoadL
                 list.contentFlow.update {
                     it.copy(
                         items = emptyList(),
-                        errorMessage = loadItems.errorMessage(e.message ?: "An error occurred"),
+                        errorMessage = loadItems.errorMessage(errorText(e), strings),
                         canLoadMore = false
                     )
                 }
@@ -177,4 +182,8 @@ class ListsState(private val scope: CoroutineScope, private val loadItems: LoadL
             list.contentFlow.update { it.copy(waiting = false, refreshing = false, loadingMore = false) }
         }.also { list.job = it }
     }
+
+    /** Why loading failed, as the user reads it: an HTTP error by its status, else the error's own words. */
+    private fun errorText(e: Exception): String =
+        (e as? HttpStatusException)?.let { strings.requestFailed(it.status) } ?: e.message ?: strings.errorOccurred
 }

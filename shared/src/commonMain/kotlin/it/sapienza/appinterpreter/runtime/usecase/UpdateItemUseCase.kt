@@ -41,6 +41,9 @@ class UpdateItemUseCase(private val appData: AppData, private val repository: Ap
             JsonObject(changes + fields),
             cleared - fields.keys
         )
-            ?: throw NoSuchElementException("Nothing to change: this item is no longer saved")
+            ?: throw NoLongerSavedException()
     }
 }
+
+/** The object to change was deleted meanwhile (on another screen, say). */
+class NoLongerSavedException : NoSuchElementException("Nothing to change: this item is no longer saved")

@@ -11,16 +11,24 @@
 # Uploading the AAB to Google Play is a separate step.
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 tag="${1:-}"
 dry_run=false
-[ "${2:-}" = "--dry-run" ] && dry_run=true
-[[ "$tag" =~ ^v([0-9]+)\.([0-9]+)(\.([0-9]+))?$ ]] || { echo "Usage: $0 vMAJOR.MINOR[.PATCH] [--dry-run]" >&2; exit 2; }
+allow_missing_keys=false
+for arg in "${@:2}"; do
+  case "$arg" in
+    --dry-run) dry_run=true ;;
+    --allow-missing-keys) allow_missing_keys=true ;;
+    *) echo "Usage: $0 vMAJOR.MINOR[.PATCH] [--dry-run] [--allow-missing-keys]" >&2; exit 2 ;;
+  esac
+done
+[[ "$tag" =~ ^v([0-9]+)\.([0-9]+)(\.([0-9]+))?$ ]] || { echo "Usage: $0 vMAJOR.MINOR[.PATCH] [--dry-run] [--allow-missing-keys]" >&2; exit 2; }
 major=$((10#${BASH_REMATCH[1]})); minor=$((10#${BASH_REMATCH[2]})); patch=$((10#${BASH_REMATCH[4]:-0}))
 (( minor <= 999 && patch <= 999 )) || { echo "Minor and patch must be 0 to 999" >&2; exit 2; }
 version_code=$((major * 1000000 + minor * 1000 + patch))
 
 cd "$(git rev-parse --show-toplevel)"
-repo=wakirox/JsonAppCreator-Android
+repo=wakirox/JsonAppCreator
 properties="${APPKIN_KEYSTORE_PROPERTIES:-$HOME/.android/keys/rainy-keystore.properties}"
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -33,6 +41,17 @@ git rev-parse -q --verify "refs/tags/$tag" > /dev/null && { echo "$tag already e
 ci=$(gh run list --repo "$repo" --workflow CI --commit "$commit" --json conclusion -q '[.[] | select(.conclusion == "success")] | length')
 [ "${ci:-0}" -gt 0 ] || { echo "CI hasn't passed on $commit yet" >&2; exit 1; }
 
+# Bundled API keys: checked exactly where Gradle reads them (tools/release-keys.sh). The flag below applies to this run only.
+# shellcheck source=tools/release-keys.sh
+. "$script_dir/release-keys.sh"
+keys_status=0
+check_bundled_keys "$PWD" || keys_status=$?
+[ "$keys_status" -ne 2 ] || exit 1
+if [ "$keys_status" -ne 0 ] && ! $allow_missing_keys; then
+  echo "Bundled configuration keys are not set (APP_CONFIG_KEYS_FILE / APP_CONFIG_KEYS_BASE64 / TMDB_API_KEY / Gradle property configApiKeysFile)." >&2
+  echo "Pass --allow-missing-keys if you intentionally want to build without bundled keys (this run only)." >&2
+  exit 1
+fi
 # Signing values go to Gradle through the environment only.
 [ -r "$properties" ] || { echo "No signing properties at $properties" >&2; exit 1; }
 value() { grep -m1 "^$1=" "$properties" | cut -d= -f2-; }
