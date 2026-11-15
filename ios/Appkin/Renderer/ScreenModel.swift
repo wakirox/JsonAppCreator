@@ -16,6 +16,8 @@ final class Navigator {
     var push: (ScreenRoute) -> Void = { _ in }
     /// Goes back from the screen with this id, if it is the one on top.
     var popIfTop: (UUID) -> Void = { _ in }
+    /// A service refused the app's API key: the shell asks for the keys again.
+    var keyRejected: () -> Void = {}
 }
 
 /// A screen's state for SwiftUI: it watches the shared `ScreenViewModel`'s flows and carries out its effects.
@@ -45,6 +47,9 @@ final class ScreenModel: ObservableObject {
         watchers = [
             Watch.shared.flow(flow: RenderKit.shared.data(screen: vm)) { [weak self] value in if let value = value as? ItemData { self?.data = value } },
             Watch.shared.flow(flow: vm.loading) { [weak self] value in self?.loading = (value as? NSNumber)?.boolValue ?? false },
+            Watch.shared.flow(flow: vm.keysRejected) { [weak navigator] value in
+                if (value as? NSNumber)?.boolValue == true { navigator?.keyRejected() }
+            },
             Watch.shared.flow(flow: vm.lists.canRefresh) { [weak self] value in self?.canRefresh = (value as? NSNumber)?.boolValue ?? false },
             Watch.shared.flow(flow: RenderKit.shared.alert(alerts: alerts)) { [weak self] value in self?.alert = value as? AlertInfo },
             Watch.shared.flow(flow: RenderKit.shared.effects(screen: vm)) { [weak self] value in

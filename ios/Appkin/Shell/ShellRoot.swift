@@ -120,6 +120,12 @@ struct KeyEntryView: View {
                                 .autocorrectionDisabled()
                         }
                     }
+                } header: {
+                    if request.missing.rejected {
+                        Text("That key didn't work. Check it, or get a new one, and enter it again.")
+                            .foregroundStyle(.red)
+                            .textCase(nil)
+                    }
                 } footer: {
                     Text("Enter the keys this app needs. They are kept in your device's Keychain and are not added to the JSON.")
                 }

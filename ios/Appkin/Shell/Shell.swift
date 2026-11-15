@@ -127,6 +127,19 @@ final class Shell: ObservableObject {
         session.navigator.popIfTop = { [weak self] id in
             if case .screen(_, let route)? = self?.path.last, route.id == id { self?.path.removeLast() }
         }
+        session.navigator.keyRejected = { [weak self, weak session] in
+            guard let self, let session, self.keyRequest == nil,
+                  let refused = self.kit.refusedKeys(json: session.json) else { return }
+            // The app can't work with a refused key: it closes, and opens again once the keys are entered.
+            self.path.removeAll { destination in
+                switch destination {
+                case .app(let shown), .screen(let shown, _): return shown === session
+                default: return false
+                }
+            }
+            self.keyRequest = KeyRequest(json: session.json, configurationId: session.configurationId, isExample: session.isExample, missing: refused)
+            self.pendingReplacing = false
+        }
         if replacing { path = [.app(session)] } else { path.append(.app(session)) }
     }
 

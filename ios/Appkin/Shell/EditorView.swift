@@ -369,11 +369,12 @@ struct EditorView: View {
         var range = text.endIndex..<text.endIndex
         if let selection, case .selection(let chosen) = selection.indices { range = chosen }
         let start = text.utf16.distance(from: text.startIndex, to: range.lowerBound)
-        let indent = Snippets.shared.indentAt(text: text, offset: Int32(start))
-        let addition = Snippets.shared.indented(json: snippet.json, indent: indent)
-        text.replaceSubrange(range, with: addition)
+        let end = text.utf16.distance(from: text.startIndex, to: range.upperBound)
+        // The commas that keep the JSON valid come with it (see Snippets.insertion).
+        let insertion = Snippets.shared.insertion(text: text, start: Int32(start), end: Int32(end), json: snippet.json)
+        text.replaceSubrange(index(Int(insertion.start))..<index(Int(insertion.end)), with: insertion.text)
         focused = true
-        selection = TextSelection(insertionPoint: index(start + addition.utf16.count))
+        selection = TextSelection(insertionPoint: index(Int(insertion.start) + Int(insertion.cursor)))
     }
 }
 
