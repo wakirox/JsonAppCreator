@@ -85,7 +85,7 @@ class ScreenViewModel(
     private val updateItem: UpdateItemUseCase,
     private val deleteItems: DeleteItemsUseCase,
     private val openLink: OpenLinkUseCase,
-    findMissingApiKeys: FindMissingApiKeysUseCase,
+    private val findMissingApiKeys: FindMissingApiKeysUseCase,
     loadScreen: LoadScreenUseCase,
     private val strings: RuntimeStrings,
     private val pdfPage: PdfPageUseCase = PdfPageUseCase(),
@@ -152,6 +152,16 @@ class ScreenViewModel(
     /** The keys stay missing: the app opens without them, and what needs them can't load. */
     fun skipKeys() {
         missing.value = null
+    }
+
+    /**
+     * Asks again for the keys skipped earlier, when some are still missing (a list's Retry after the key prompt was
+     * cancelled): true when it asks, false when there is nothing to ask and the list should just load again.
+     */
+    fun askForMissingKeys(): Boolean {
+        val stillMissing = screen?.let { findMissingApiKeys() } ?: return false
+        missing.value = stillMissing
+        return true
     }
 
     private val busy = MutableStateFlow(false)

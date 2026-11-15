@@ -34,6 +34,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -77,9 +78,9 @@ class ScreenViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun screen(): ScreenViewModel {
+    private fun screen(bundledKeys: Map<String, String> = mapOf("KEY" to "k")): ScreenViewModel {
         val current = CurrentConfiguration { json }
-        val keys = ConfigurationKeys(MemorySecretStore(), mapOf("test" to mapOf("KEY" to "k"))) { "bundled:test" }
+        val keys = ConfigurationKeys(MemorySecretStore(), mapOf("test" to bundledKeys)) { "bundled:test" }
         val fetch = FetchJsonUseCase(
             JsonHttpClient(
                 MockEngine {
@@ -110,6 +111,24 @@ class ScreenViewModelTest {
             ),
             LoadScreenUseCase(repository, EnglishRuntimeStrings), EnglishRuntimeStrings
         )
+    }
+
+    @Test
+    fun aSkippedKeyIsAskedForAgainOnRetry() = runTest {
+        val screen = screen(bundledKeys = emptyMap())
+        assertEquals(setOf("KEY"), screen.missingKeys.value?.names)
+        screen.skipKeys()
+        assertNull(screen.missingKeys.value)
+
+        assertTrue(screen.askForMissingKeys(), "the key is still missing")
+        assertEquals(setOf("KEY"), screen.missingKeys.value?.names)
+    }
+
+    @Test
+    fun retryWithAllKeysJustLoadsAgain() = runTest {
+        val screen = screen()
+        assertFalse(screen.askForMissingKeys())
+        assertNull(screen.missingKeys.value)
     }
 
     @Test

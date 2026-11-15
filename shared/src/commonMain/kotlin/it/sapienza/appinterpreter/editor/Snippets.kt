@@ -40,7 +40,11 @@ object Snippets {
               "buttonTitle": "Send",
               "formElements": [
                 { "type": "text", "mapping": "name", "title": "Name", "mandatory": true }
-              ]
+              ],
+              "action": {
+                "id": "send",
+                "event": { "type": "alert", "value": "Thanks, ${'$'}{name}!" }
+              }
             }
             """.trimIndent()
         ),
@@ -108,6 +112,38 @@ object Snippets {
         val insert = if (opens && (after == '}' || after == ']')) "$inner\n$indent" else inner
         return new.replaceRange(at, at, insert) to at + inner.length
     }
+
+    /** What the Insert menu puts in: replace [start] to [end] with [text], then put the cursor at [cursor] in it. */
+    data class Insertion(val start: Int, val end: Int, val text: String, val cursor: Int)
+
+    /**
+     * [json] put into [text] in place of the selection [start] to [end], with the commas that keep the JSON valid: one
+     * before it when it follows a value (the snippet then starts on its own line, at that value's indentation), one
+     * after it when a value follows.
+     */
+    fun insertion(text: String, start: Int, end: Int, json: String): Insertion {
+        var prev = start - 1
+        while (prev >= 0 && text[prev].isWhitespace()) prev--
+        var next = end
+        while (next < text.length && text[next].isWhitespace()) next++
+        val afterValue = prev >= 0 && endsValue(text[prev])
+        val beforeValue = next < text.length && startsValue(text[next])
+        return if (afterValue) {
+            val indent = indentAt(text, prev)
+            val body = indented(json, indent)
+            val tail = if (beforeValue) "," else ""
+            val insert = ",\n$indent$body$tail"
+            Insertion(prev + 1, end, insert, insert.length - tail.length)
+        } else {
+            val body = indented(json, indentAt(text, start))
+            val tail = if (beforeValue) "," else ""
+            Insertion(start, end, body + tail, body.length)
+        }
+    }
+
+    private fun endsValue(c: Char) = c == '}' || c == ']' || c == '"' || c.isLetterOrDigit()
+
+    private fun startsValue(c: Char) = c == '{' || c == '[' || c == '"' || c.isLetterOrDigit() || c == '-'
 
     /** [json] with every line after the first indented by [indent], to sit where it is inserted. */
     fun indented(json: String, indent: String): String = json.lines().joinToString("\n$indent")
