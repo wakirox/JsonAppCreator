@@ -85,7 +85,7 @@ class ScreenViewModel(
     private val updateItem: UpdateItemUseCase,
     private val deleteItems: DeleteItemsUseCase,
     private val openLink: OpenLinkUseCase,
-    private val findMissingApiKeys: FindMissingApiKeysUseCase,
+    findMissingApiKeys: FindMissingApiKeysUseCase,
     loadScreen: LoadScreenUseCase,
     private val strings: RuntimeStrings,
     private val pdfPage: PdfPageUseCase = PdfPageUseCase(),
@@ -144,25 +144,12 @@ class ScreenViewModel(
         FormsState(saved, initialFormValues, submitForm, { form -> resolve(form.action)?.event is SaveData }, strings)
     val lists = ListsState(viewModelScope, loadListItems, strings)
 
-    private val missing = MutableStateFlow(screen?.let { findMissingApiKeys() })
-
-    /** The app's API keys this phone lacks: asked for before the screen shows, unless skipped. */
-    val missingKeys: StateFlow<FindMissingApiKeysUseCase.Missing?> = missing.asStateFlow()
-
-    /** The keys stay missing: the app opens without them, and what needs them can't load. */
-    fun skipKeys() {
-        missing.value = null
-    }
-
     /**
-     * Asks again for the keys skipped earlier, when some are still missing (a list's Retry after the key prompt was
-     * cancelled): true when it asks, false when there is nothing to ask and the list should just load again.
+     * The app's API keys this phone lacks. While some are missing the app can't work, so the platform shows a screen to
+     * add them in place of the app; saving them restarts the app.
      */
-    fun askForMissingKeys(): Boolean {
-        val stillMissing = screen?.let { findMissingApiKeys() } ?: return false
-        missing.value = stillMissing
-        return true
-    }
+    val missingKeys: StateFlow<FindMissingApiKeysUseCase.Missing?> =
+        MutableStateFlow(screen?.let { findMissingApiKeys() }).asStateFlow()
 
     private val busy = MutableStateFlow(false)
 

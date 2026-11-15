@@ -762,9 +762,7 @@ private fun RenderList(view: ListView, data: JsonObject?, modifier: Modifier) {
         when {
             state.waiting -> LoadingIndicator(Modifier.align(Alignment.CenterHorizontally))
 
-            state.errorMessage != null -> ListLoadError(state.errorMessage.orEmpty()) {
-                if (!screen.askForMissingKeys()) screen.lists.retry(entry)
-            }
+            state.errorMessage != null -> ListLoadError(state.errorMessage.orEmpty()) { screen.lists.retry(entry) }
 
             state.items.isEmpty() -> EmptyList(view, entry)
 
@@ -832,7 +830,7 @@ private fun LazyListScope.verticalListItems(view: ListView, entry: ListsState.En
 
         state.errorMessage != null -> item(key = "list-error-${System.identityHashCode(view)}") {
             val screen = LocalScreen.current
-            ListLoadError(state.errorMessage.orEmpty()) { if (!screen.askForMissingKeys()) screen.lists.retry(entry) }
+            ListLoadError(state.errorMessage.orEmpty()) { screen.lists.retry(entry) }
         }
 
         state.items.isEmpty() -> item(key = "list-empty-${System.identityHashCode(view)}") {

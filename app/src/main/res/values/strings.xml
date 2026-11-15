@@ -212,6 +212,17 @@
     <string name="api_keys_text">Enter the keys required by this configuration. They are encrypted in private app storage and are not added to the JSON.</string>
     <string name="api_keys_keep_saved">Leave blank to keep the saved value</string>
     <string name="api_keys_load">Load configuration</string>
+    <!-- API key screen, shown in place of an app that can't work without its keys -->
+    <plurals name="api_key_screen_title">
+        <item quantity="one">Add your API key</item>
+        <item quantity="other">Add your API keys</item>
+    </plurals>
+    <plurals name="api_key_screen_text">
+        <item quantity="one">%1$s needs an API key to work. Get one from the service it connects to and paste it here.</item>
+        <item quantity="other">%1$s needs these API keys to work. Get them from the services it connects to and paste them here.</item>
+    </plurals>
+    <string name="api_key_screen_privacy">Keys are encrypted on this phone and never shared with the app.</string>
+    <string name="api_key_screen_save">Save and open</string>
 
     <!-- Form fields, lists and images in an app -->
     <string name="image_unavailable">Image unavailable</string>

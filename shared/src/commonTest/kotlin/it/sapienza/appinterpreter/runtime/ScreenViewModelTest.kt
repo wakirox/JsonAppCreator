@@ -34,7 +34,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -114,21 +113,10 @@ class ScreenViewModelTest {
     }
 
     @Test
-    fun aSkippedKeyIsAskedForAgainOnRetry() = runTest {
-        val screen = screen(bundledKeys = emptyMap())
-        assertEquals(setOf("KEY"), screen.missingKeys.value?.names)
-        screen.skipKeys()
-        assertNull(screen.missingKeys.value)
-
-        assertTrue(screen.askForMissingKeys(), "the key is still missing")
-        assertEquals(setOf("KEY"), screen.missingKeys.value?.names)
-    }
-
-    @Test
-    fun retryWithAllKeysJustLoadsAgain() = runTest {
-        val screen = screen()
-        assertFalse(screen.askForMissingKeys())
-        assertNull(screen.missingKeys.value)
+    fun anAppWithoutItsKeyReportsItMissing() {
+        val missing = screen(bundledKeys = emptyMap()).missingKeys.value
+        assertEquals(setOf("KEY"), missing?.names)
+        assertEquals(emptySet(), missing?.savedNames)
     }
 
     @Test
