@@ -183,6 +183,15 @@ class ListPagingTest {
     }
 
     @Test
+    fun theSamePageInAnotherSpellingIsTheEnd() {
+        val next = NextPage(urlFrom = "next")
+        val encoded = JsonText.parse("""{ "next": "https://example.com/a%20b?q=1" }""") as JsonObject
+        assertNull(LoadListItemsUseCase.nextUrl(next, "https://example.com/a b?q=1", encoded, 5))
+        val upper = JsonText.parse("""{ "next": "https://EXAMPLE.com:443/p1" }""") as JsonObject
+        assertNull(LoadListItemsUseCase.nextUrl(next, "https://example.com/p1", upper, 5))
+    }
+
+    @Test
     fun theParameterIsReplacedOrAdded() {
         assertEquals(
             "https://x/a?skip=40&limit=20",

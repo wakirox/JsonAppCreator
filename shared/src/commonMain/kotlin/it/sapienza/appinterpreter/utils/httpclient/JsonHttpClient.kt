@@ -12,13 +12,19 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.URLBuilder
 import io.ktor.http.Url
+import io.ktor.http.charset
 import io.ktor.http.content.TextContent
+import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.http.takeFrom
+import io.ktor.utils.io.charsets.Charset
+import io.ktor.utils.io.charsets.Charsets
+import io.ktor.utils.io.charsets.decode
 import io.ktor.utils.io.readBuffer
 import it.sapienza.appinterpreter.json.JsonText
 import it.sapienza.appinterpreter.model.event.CallServiceMethod
 import it.sapienza.appinterpreter.security.ApiKeyPlaceholders
+import kotlinx.io.Buffer
 import kotlinx.io.IOException
 import kotlinx.io.readByteArray
 import kotlinx.serialization.json.JsonObject
@@ -70,6 +76,7 @@ class JsonHttpClient(
         var currentMethod = method
         var currentBody = body
         var activeHeaders = resolvedHeaders
+        var leftInitialOrigin = false
         var redirects = 0
 
         while (true) {
@@ -87,26 +94,31 @@ class JsonHttpClient(
             val code = response.status.value
             val location = response.headers[HttpHeaders.Location]
             if (code in REDIRECT_STATUSES && location != null && redirects < MAX_REDIRECTS) {
+                // Without a readable initial URL the origin checks below can't run, so no redirect is followed.
+                val origin = initialOrigin ?: throw IOException("Cannot follow a redirect from an invalid URL")
                 val base = runCatching { Url(currentUrl) }.getOrNull() ?: throw HttpStatusException(code)
-                val target = runCatching { URLBuilder(base).takeFrom(location).build() }.getOrNull()
-                    ?: throw HttpStatusException(code)
+                val target =
+                    runCatching { URLBuilder(base).apply { parameters.clear() }.takeFrom(location).build() }.getOrNull()
+                        ?: throw HttpStatusException(code)
                 if (target.protocol.name !in ALLOWED_PROTOCOLS) {
                     throw IOException("Unsupported redirect scheme: ${target.protocol.name}")
                 }
-                if (initialOrigin?.protocol?.name == "https" && target.protocol.name != "https") {
+                if (origin.protocol.name == "https" && target.protocol.name != "https") {
                     throw IOException("Redirect from HTTPS to HTTP is not allowed")
                 }
-                currentUrl = target.toString()
                 if (code == 303 || ((code == 301 || code == 302) && currentMethod == CallServiceMethod.post)) {
                     currentMethod = CallServiceMethod.get
                     currentBody = null
                 }
-                // Never forward caller/API-key headers to a different origin on redirect.
-                activeHeaders = if (initialOrigin != null && sameOrigin(initialOrigin, target)) {
-                    resolvedHeaders
-                } else {
-                    emptyMap()
+                // 307/308 (and a PUT) keep the method and so the body: it never goes to another origin.
+                if (currentMethod.sendsBody && !sameOrigin(base, target)) {
+                    throw IOException("Redirect to another origin is not allowed for a request with a body")
                 }
+                currentUrl = target.toString()
+                // Never forward caller/API-key headers to a different origin on redirect, and once a hop has left
+                // the initial origin, not even if a later one comes back.
+                if (!sameOrigin(origin, target)) leftInitialOrigin = true
+                activeHeaders = if (leftInitialOrigin) emptyMap() else resolvedHeaders
                 redirects++
                 continue
             }
@@ -115,7 +127,7 @@ class JsonHttpClient(
             if (bytes.size > maxResponseBytes) {
                 throw IOException("The response exceeds the maximum supported size")
             }
-            val text = bytes.decodeToString()
+            val text = decode(bytes, response.contentType()?.charset())
             if (text.isBlank()) return JsonObject(emptyMap())
             return try {
                 JsonText.parse(text) as? JsonObject ?: throw IOException("The response is not a JSON object")
@@ -123,6 +135,16 @@ class JsonHttpClient(
                 throw IOException(error.message ?: "Unable to read the response")
             }
         }
+    }
+
+    /** [bytes] as text in [charset] (UTF-8 when the response names none), without a leading UTF-8 byte order mark. */
+    private fun decode(bytes: ByteArray, charset: Charset?): String {
+        val text = if (charset == null || charset == Charsets.UTF_8) {
+            bytes.decodeToString()
+        } else {
+            charset.newDecoder().decode(Buffer().apply { write(bytes) })
+        }
+        return text.removePrefix("\uFEFF")
     }
 
     fun close() = client.close()

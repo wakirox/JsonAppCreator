@@ -102,12 +102,19 @@ class LoadListItemsUseCase(private val fetchJson: FetchJsonUseCase, private val 
 
         private fun resolveSameOriginNextUrl(currentUrl: String, candidate: String): String? {
             val base = runCatching { Url(currentUrl) }.getOrNull() ?: return null
-            val target = runCatching { URLBuilder(base).takeFrom(candidate).build() }.getOrNull() ?: return null
+            val target =
+                runCatching { URLBuilder(base).apply { parameters.clear() }.takeFrom(candidate).build() }.getOrNull()
+                    ?: return null
             val sameOrigin = target.protocol == base.protocol &&
                 target.host.equals(base.host, ignoreCase = true) &&
                 target.port == base.port
-            return target.toString().takeIf { sameOrigin && it != currentUrl }
+            return target.toString().takeIf { sameOrigin && !samePage(target, base) }
         }
+
+        /** Whether [a] and [b] are the same address, however they were spelled (encoding, host case). */
+        private fun samePage(a: Url, b: Url) = a.protocol == b.protocol && a.host.equals(b.host, ignoreCase = true) &&
+            a.port == b.port && a.encodedPath == b.encodedPath && a.encodedQuery == b.encodedQuery &&
+            a.encodedFragment == b.encodedFragment
 
         private fun parameterValue(url: String, name: String): Int? =
             query(url).firstOrNull { it.substringBefore('=') == name }?.substringAfter('=', "")?.toIntOrNull()
