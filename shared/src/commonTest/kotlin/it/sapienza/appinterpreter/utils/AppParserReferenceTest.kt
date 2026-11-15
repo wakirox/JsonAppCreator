@@ -1,9 +1,11 @@
 package it.sapienza.appinterpreter.utils
 
 import it.sapienza.appinterpreter.model.Layout
+import it.sapienza.appinterpreter.model.action.Action
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
@@ -224,6 +226,117 @@ class AppParserReferenceTest {
         )
 
         assertTrue(error.message.orEmpty().contains("view containment cycle detected: a -> b -> a"))
+    }
+
+    @Test
+    fun registersInlineViewsAndActionsAcrossNestedEventAndListBranches() {
+        val application = parse(
+            """
+            "mainView": {
+              "type": "layout",
+              "views": [
+                {
+                  "type": "list",
+                  "mapping": "items",
+                  "initData": {
+                    "url": "https://example.com/items",
+                    "thenDo": {
+                      "type": "show",
+                      "view": { "id": "init-done-view", "type": "text", "label": "Init done" }
+                    }
+                  },
+                  "itemView": { "type": "text", "mapping": "name" },
+                  "swipeToStart": {
+                    "id": "swipe-start-action",
+                    "event": {
+                      "type": "delete",
+                      "collection": "saved",
+                      "thenDo": {
+                        "type": "show",
+                        "view": { "id": "deleted-view", "type": "text", "label": "Deleted" }
+                      }
+                    }
+                  },
+                  "swipeToEnd": {
+                    "id": "swipe-end-action",
+                    "event": {
+                      "type": "update",
+                      "collection": "saved",
+                      "fields": { "done": "true" },
+                      "thenDo": {
+                        "type": "show",
+                        "view": { "id": "updated-view", "type": "text", "label": "Updated" }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "button",
+                  "title": "Save",
+                  "action": {
+                    "id": "save-action",
+                    "event": {
+                      "type": "save",
+                      "collection": "saved",
+                      "fields": { "name": "Item" },
+                      "thenDo": {
+                        "type": "rest",
+                        "url": "https://example.com/sync",
+                        "thenDo": {
+                          "type": "show",
+                          "view": { "id": "saved-view", "type": "text", "label": "Saved" }
+                        },
+                        "onError": {
+                          "type": "show",
+                          "view": { "id": "sync-error-view", "type": "text", "label": "Sync failed" }
+                        }
+                      }
+                    }
+                  }
+                },
+                { "ref": "init-done-view" },
+                { "ref": "deleted-view" },
+                { "ref": "updated-view" },
+                { "ref": "saved-view" },
+                { "ref": "sync-error-view" }
+              ]
+            }
+            """
+        )
+
+        assertNotNull(application.viewBy("init-done-view"))
+        assertNotNull(application.viewBy("deleted-view"))
+        assertNotNull(application.viewBy("updated-view"))
+        assertNotNull(application.viewBy("saved-view"))
+        assertNotNull(application.viewBy("sync-error-view"))
+        assertNotNull(application.actionBy(Action(ref = "swipe-start-action")))
+        assertNotNull(application.actionBy(Action(ref = "swipe-end-action")))
+    }
+
+    @Test
+    fun rejectsUnresolvedReferencesInsideRestServiceOnError() {
+        val error = invalid(
+            """
+            "mainView": {
+              "type": "button",
+              "title": "Call",
+              "action": {
+                "id": "call-action",
+                "event": {
+                  "type": "rest",
+                  "url": "https://example.com/items",
+                  "onError": {
+                    "type": "show",
+                    "view": { "ref": "missing-error-view" }
+                  }
+                }
+              }
+            }
+            """
+        )
+
+        assertTrue(error.message.orEmpty().contains("$.mainView.action.event.onError.view.ref"))
+        assertTrue(error.message.orEmpty().contains("unresolved view reference 'missing-error-view'"))
     }
 
     private fun parse(body: String) = AppParser(applicationJson(body)).parseApplication2()

@@ -461,6 +461,8 @@ object JsonText {
 
 /** How the app prints JSON numbers, which are kept as written when read. */
 object JsonNumbers {
+    private const val MAX_EXPONENT = Long.MAX_VALUE / 2
+
     /** Whether [literal] has a fraction or an exponent. */
     fun isDecimal(literal: String) = (literal.firstOrNull()?.let { it == '-' || it.isDigit() } == true) &&
         literal.any { it == '.' || it == 'e' || it == 'E' }
@@ -488,22 +490,26 @@ object JsonNumbers {
         val exponent = if (mantissa.length <
             body.length
         ) {
-            body.substring(mantissa.length + 1).removePrefix("+").toInt()
+            body.substring(mantissa.length + 1).removePrefix("+").toLongOrNull() ?: return literal
         } else {
-            0
+            0L
         }
+        // Beyond this the scale maths below could overflow a Long, so the literal stays as written.
+        if (exponent > MAX_EXPONENT || exponent < -MAX_EXPONENT) return literal
         val whole = mantissa.substringBefore('.')
         val fraction = if ('.' in mantissa) mantissa.substringAfter('.') else ""
         val unscaled = (whole + fraction).trimStart('0').ifEmpty { "0" }
-        val scale = fraction.length - exponent
+        val scale = fraction.length.toLong() - exponent
         val sign = if (negative && unscaled != "0") "-" else ""
-        if (scale == 0) return sign + unscaled
-        val adjusted = -scale.toLong() + (unscaled.length - 1)
-        if (scale > 0 && adjusted >= -6) {
-            val text = if (unscaled.length > scale) {
-                unscaled.substring(0, unscaled.length - scale) + "." + unscaled.substring(unscaled.length - scale)
+        if (scale == 0L) return sign + unscaled
+        val adjusted = -scale + (unscaled.length - 1)
+        if (scale > 0L && adjusted >= -6L) {
+            val intScale = scale.toInt()
+            val text = if (unscaled.length > intScale) {
+                unscaled.substring(0, unscaled.length - intScale) + "." +
+                    unscaled.substring(unscaled.length - intScale)
             } else {
-                "0." + "0".repeat(scale - unscaled.length) + unscaled
+                "0." + "0".repeat(intScale - unscaled.length) + unscaled
             }
             return sign + text
         }

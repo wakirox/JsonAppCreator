@@ -5,23 +5,29 @@ import it.sapienza.appinterpreter.json.JsonText
 import it.sapienza.appinterpreter.model.Layout
 import it.sapienza.appinterpreter.model.ModelApplication
 import it.sapienza.appinterpreter.model.ModelJson
+import it.sapienza.appinterpreter.model.action.Action
 import it.sapienza.appinterpreter.model.event.AlertMessage
+import it.sapienza.appinterpreter.model.event.CalendarEvent
+import it.sapienza.appinterpreter.model.event.CopyText
+import it.sapienza.appinterpreter.model.event.DeleteData
 import it.sapienza.appinterpreter.model.event.Event
+import it.sapienza.appinterpreter.model.event.GoBack
+import it.sapienza.appinterpreter.model.event.OpenLink
+import it.sapienza.appinterpreter.model.event.PdfItems
 import it.sapienza.appinterpreter.model.event.RESTService
+import it.sapienza.appinterpreter.model.event.SaveData
+import it.sapienza.appinterpreter.model.event.ShareText
 import it.sapienza.appinterpreter.model.event.ShowView
+import it.sapienza.appinterpreter.model.event.TextPackItems
+import it.sapienza.appinterpreter.model.event.UpdateData
 import it.sapienza.appinterpreter.model.view_model.ListView
 import it.sapienza.appinterpreter.model.view_model.helper.MView
 import kotlinx.serialization.json.JsonElement
 
 class AppParser(val obj: String) {
 
+    /** Parses [obj], validates references, and indexes inline view and action definitions into the root registries. */
     fun parseApplication2(): ModelApplication {
-        /*
-         * per facilitare la scrittura del modello si è deciso di dare la possibilità di riutilizzare determinati elementi
-         * all'iterno del modello specificando solamente l'id di un elemento è possibile referenziarlo dalla lista generale dell'app
-         * Per evitare problemi con la scrittura non è
-         * possibile referenziare un elemento che si trova definito all'interno di un altro elemento*/
-
         val tree = try {
             JsonText.parse(obj)
         } catch (error: JsonSyntaxException) {
@@ -62,12 +68,27 @@ class AppParser(val obj: String) {
 
             is RESTService -> {
                 ev.thenDo?.let { findView(it, model) }
+                ev.onError?.let { findView(it, model) }
             }
 
             is AlertMessage -> {
                 ev.thenDoOK?.let { findView(it, model) }
                 ev.thenDoKO?.let { findView(it, model) }
             }
+
+            is SaveData -> ev.thenDo?.let { findView(it, model) }
+
+            is UpdateData -> ev.thenDo?.let { findView(it, model) }
+
+            is DeleteData -> ev.thenDo?.let { findView(it, model) }
+
+            is CalendarEvent,
+            is CopyText,
+            is GoBack,
+            is OpenLink,
+            is PdfItems,
+            is ShareText,
+            is TextPackItems -> Unit
         }
     }
 
@@ -75,6 +96,9 @@ class AppParser(val obj: String) {
         when (view) {
             is ListView -> {
                 findGenericView(view.itemView, model)
+                registerAction(view.swipeToStart, model)
+                registerAction(view.swipeToEnd, model)
+                view.initData?.let { findView(it, model) }
             }
 
             is Layout -> {
@@ -84,15 +108,17 @@ class AppParser(val obj: String) {
             }
         }
 
-        view.action?.event?.let {
-            findView(it, model)
-        }
-        view.action?.takeUnless { it.isReference() }?.let { action ->
-            if (model.actions.none { it.id == action.id }) model.actions.add(action)
-        }
+        registerAction(view.action, model)
 
         if (addSelf && !view.isReference()) {
             model.views.add(view)
+        }
+    }
+
+    private fun registerAction(action: Action?, model: ModelApplication) {
+        action?.event?.let { findView(it, model) }
+        action?.takeUnless { it.isReference() }?.let { definition ->
+            if (model.actions.none { it.id == definition.id }) model.actions.add(definition)
         }
     }
 
