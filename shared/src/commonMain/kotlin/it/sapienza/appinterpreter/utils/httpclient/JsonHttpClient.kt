@@ -75,7 +75,6 @@ class JsonHttpClient(
         var currentUrl = resolved
         var currentMethod = method
         var currentBody = body
-        var activeHeaders = resolvedHeaders
         var leftInitialOrigin = false
         var redirects = 0
 
@@ -87,7 +86,10 @@ class JsonHttpClient(
                     CallServiceMethod.put -> HttpMethod.Put
                     CallServiceMethod.delete -> HttpMethod.Delete
                 }
-                activeHeaders.forEach { (name, value) -> header(name, value) }
+                // Never forward caller/API-key headers to a different origin on redirect, and once a hop has left
+                // the initial origin, not even if a later one comes back. (No headers variable swapped for
+                // emptyMap(): Kotlin/Native's coroutine then casts it to HashMap and fails.)
+                if (!leftInitialOrigin) resolvedHeaders.forEach { (name, value) -> header(name, value) }
                 // As before, a POST without data sends the text null.
                 if (currentMethod.sendsBody) setBody(TextContent(currentBody.toString(), JSON))
             }
@@ -115,10 +117,7 @@ class JsonHttpClient(
                     throw IOException("Redirect to another origin is not allowed for a request with a body")
                 }
                 currentUrl = target.toString()
-                // Never forward caller/API-key headers to a different origin on redirect, and once a hop has left
-                // the initial origin, not even if a later one comes back.
                 if (!sameOrigin(origin, target)) leftInitialOrigin = true
-                activeHeaders = if (leftInitialOrigin) emptyMap() else resolvedHeaders
                 redirects++
                 continue
             }
