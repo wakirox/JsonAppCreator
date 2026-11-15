@@ -3,17 +3,16 @@ package it.sapienza.androidratio.appratio
 import android.content.Context
 import android.content.Intent
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import it.sapienza.appinterpreter.activity.MainActivity
 import it.sapienza.appinterpreter.security.ConfigurationApiKeys
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -25,7 +24,7 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [35])
-class MissingApiKeyDialogTest {
+class MissingApiKeyScreenTest {
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
     private val domainPreferences =
         targetContext.getSharedPreferences(DOMAIN_PREFERENCES, Context.MODE_PRIVATE)
@@ -78,20 +77,21 @@ class MissingApiKeyDialogTest {
     }
 
     @Test
-    fun missingTmdbKeyPromptsBeforeLoadingConfiguration() {
-        composeRule.onNodeWithText("Configuration API keys").assertIsDisplayed()
+    fun aMissingKeyShowsTheKeyScreenInPlaceOfTheApp() {
+        composeRule.onNodeWithText("Add your API key").assertIsDisplayed()
         composeRule.onNodeWithText("TMDB_API_KEY").assertIsDisplayed()
-        composeRule.onNodeWithText("Load configuration").assertIsNotEnabled()
+        composeRule.onNodeWithText("Save and open").assertIsNotEnabled()
+        composeRule.onNodeWithText("Popular movies", substring = true).assertDoesNotExist()
+        composeRule.onNodeWithText("Cancel").assertDoesNotExist()
     }
 
     @Test
-    fun cancellingKeepsTheAppAndShowsIt() {
-        composeRule.onNodeWithText("Cancel").performClick()
-        composeRule.waitForIdle()
-
-        assertEquals(TMDB_CONFIGURATION_ID, domainPreferences.getString(CONFIGURATION_ID_KEY, null))
-        assertTrue(domainPreferences.getString(JSON_KEY, null).orEmpty().contains("\"name\": \"Movies\""))
-        composeRule.onNodeWithText("Movies").assertExists()
+    fun typingTheKeyEnablesSaving() {
+        // Saving itself needs the Android Keystore, which Robolectric lacks: it's checked on an emulator.
+        composeRule.onNodeWithText("TMDB_API_KEY").performTextInput("   ")
+        composeRule.onNodeWithText("Save and open").assertIsNotEnabled()
+        composeRule.onNodeWithText("TMDB_API_KEY").performTextInput("my-key")
+        composeRule.onNodeWithText("Save and open").assertIsEnabled()
     }
 
     private companion object {

@@ -77,14 +77,16 @@ class ScreenViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun screen(): ScreenViewModel {
+    private fun screen(bundledKeys: Map<String, String> = mapOf("KEY" to "k")): ScreenViewModel {
         val current = CurrentConfiguration { json }
-        val keys = ConfigurationKeys(MemorySecretStore(), mapOf("test" to mapOf("KEY" to "k"))) { "bundled:test" }
+        val keys = ConfigurationKeys(MemorySecretStore(), mapOf("test" to bundledKeys)) { "bundled:test" }
         val fetch = FetchJsonUseCase(
             JsonHttpClient(
                 MockEngine {
                     if (it.url.encodedPath.endsWith("/gone")) {
                         respond("{}", HttpStatusCode.NotFound)
+                    } else if (it.url.encodedPath.endsWith("/wrong")) {
+                        respond("{}", HttpStatusCode.Unauthorized)
                     } else {
                         respond("""{ "message": "Loaded from ${it.url.encodedPath}" }""")
                     }
@@ -113,6 +115,13 @@ class ScreenViewModelTest {
     }
 
     @Test
+    fun anAppWithoutItsKeyReportsItMissing() {
+        val missing = screen(bundledKeys = emptyMap()).missingKeys.value
+        assertEquals(setOf("KEY"), missing?.names)
+        assertEquals(emptySet(), missing?.savedNames)
+    }
+
+    @Test
     fun anAlertThenAScreenWithTheData() = runTest {
         val screen = screen()
         val layout = assertIs<Layout>(screen.screen?.definition)
@@ -126,6 +135,20 @@ class ScreenViewModelTest {
         val open = assertIs<ScreenViewModel.Effect.OpenScreen>(screen.effects.first())
         assertEquals("details", open.view.id)
         assertEquals("Ana", open.payload?.getValue("who"))
+    }
+
+    @Test
+    fun aRefusedKeyAsksForTheKeysAgain() = runTest {
+        val screen = screen(bundledKeys = mapOf("KEY" to "wrong"))
+        assertNull(screen.missingKeys.value, "the key is there, just wrong")
+        val load = assertIs<ButtonView>((screen.screen?.definition as Layout).views[1])
+
+        screen.onAction(load.action, null)
+
+        withContext(Dispatchers.Default) { withTimeout(10_000) { screen.keysRejected.first { it } } }
+        assertEquals(setOf("KEY"), screen.missingKeys.value?.names)
+        assertEquals(emptySet(), screen.missingKeys.value?.savedNames, "every key is entered again")
+        assertNull(alerts.alert, "the key screen, not an alert")
     }
 
     @Test

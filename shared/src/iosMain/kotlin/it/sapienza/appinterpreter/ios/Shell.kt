@@ -47,8 +47,11 @@ class ReceivedInfo(
     val unchanged: Boolean
 )
 
-/** The API keys an app still needs; [saved] are the ones the Keychain already has. */
-class MissingKeys(val names: List<String>, val saved: List<String>)
+/**
+ * The API keys an app still needs; [saved] are the ones the Keychain already has. [rejected]: a service refused one, so
+ * all of them are asked for again.
+ */
+class MissingKeys(val names: List<String>, val saved: List<String>, val rejected: Boolean = false)
 
 /**
  * What the iPhone app's own screens (Home, the editor, Ask your AI app) take from the shared engine, in shapes Swift
@@ -129,6 +132,12 @@ class ShellKit(private val secrets: SecretStore, bundledKeys: String = "") {
         val keys = ConfigurationKeys(secrets, bundled) { configurationId }
         val missing = FindMissingApiKeysUseCase(CurrentConfiguration { json }, keys)() ?: return null
         return MissingKeys(missing.names.toList(), missing.savedNames.toList())
+    }
+
+    /** All of [json]'s API keys, to enter again after a service refused one; null when it has none. */
+    fun refusedKeys(json: String): MissingKeys? {
+        val names = ApiKeyPlaceholders.names(json)
+        return if (names.isEmpty()) null else MissingKeys(names.toList(), emptyList(), rejected = true)
     }
 
     fun saveKeys(json: String, configurationId: String, values: Map<String, String>) =

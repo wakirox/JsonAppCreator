@@ -27,7 +27,7 @@ import it.sapienza.appinterpreter.calendar.AndroidCalendarWriter
 import it.sapienza.appinterpreter.model.view_model.helper.MView
 import it.sapienza.appinterpreter.runtime.ScreenViewModel
 import it.sapienza.appinterpreter.security.ConfigurationApiKeys
-import it.sapienza.appinterpreter.ui.ApiKeyEntryDialog
+import it.sapienza.appinterpreter.ui.ApiKeyEntryScreen
 import it.sapienza.appinterpreter.ui.AppTheme
 import it.sapienza.appinterpreter.ui.LocalScreen
 import it.sapienza.appinterpreter.ui.MainScreen
@@ -101,9 +101,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 val missingKeys by screen.missingKeys.collectAsState()
+                val keysRejected by screen.keysRejected.collectAsState()
                 val loading by screen.loading.collectAsState()
                 val data by screen.data.collectAsState()
-                if (missingKeys == null) {
+                val keys = missingKeys
+                if (keys != null) {
+                    ApiKeyEntryScreen(
+                        appName = app.name,
+                        names = keys.names,
+                        savedNames = keys.savedNames,
+                        rejected = keysRejected,
+                        onSave = { values ->
+                            ConfigurationApiKeys.saveForCurrentConfiguration(keys.json, values)
+                            spawnNew(this)
+                        },
+                        // Opened from a home-screen shortcut there is nothing to go back to: Appkin's home instead.
+                        onBack = { if (isTaskRoot) HomeActivity.open(this) else finish() }
+                    )
+                } else {
                     CompositionLocalProvider(LocalScreen provides screen) {
                         MainScreen(
                             title = screen.title ?: app.name,
@@ -131,19 +146,6 @@ class MainActivity : ComponentActivity() {
                             onBack = if (isTaskRoot) null else onBackPressedDispatcher::onBackPressed
                         )
                     }
-                }
-                missingKeys?.let { keys ->
-                    ApiKeyEntryDialog(
-                        names = keys.names,
-                        savedNames = keys.savedNames,
-                        onConfirm = { values ->
-                            ConfigurationApiKeys.saveForCurrentConfiguration(keys.json, values)
-                            spawnNew(this)
-                        },
-                        // Cancelled: the app opens without its keys (what needs them can't load) and stays saved, with
-                        // the menu reachable to add them later or open another app.
-                        onDismiss = screen::skipKeys
-                    )
                 }
                 AlertHost(alerts)
             }

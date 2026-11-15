@@ -202,10 +202,13 @@ fun EditorScreen(
                                     text = { Text(snippet.label) },
                                     onClick = {
                                         insertOpen = false
-                                        val at = value.selection.start
-                                        val indent = Snippets.indentAt(value.text, at)
-                                        val insert = Snippets.indented(snippet.json, indent)
-                                        replace(at, value.selection.end, insert, insert.length)
+                                        val (start, end, insert, cursor) = Snippets.insertion(
+                                            value.text,
+                                            value.selection.min,
+                                            value.selection.max,
+                                            snippet.json
+                                        )
+                                        replace(start, end, insert, cursor)
                                     }
                                 )
                             }

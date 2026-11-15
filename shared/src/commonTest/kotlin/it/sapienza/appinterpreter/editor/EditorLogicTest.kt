@@ -213,6 +213,56 @@ class EditorLogicTest {
         }
     }
 
+    /** [textWithCursor] ("|" marks the cursor) after inserting [json] there, with "|" at the new cursor. */
+    private fun inserted(textWithCursor: String, json: String = "{ }"): String {
+        val at = textWithCursor.indexOf('|')
+        val text = textWithCursor.removeRange(at, at + 1)
+        val insertion = Snippets.insertion(text, at, at, json)
+        val result = text.replaceRange(insertion.start, insertion.end, insertion.text)
+        val cursor = insertion.start + insertion.cursor
+        return result.replaceRange(cursor, cursor, "|")
+    }
+
+    @Test
+    fun insertingAfterAnItemAddsTheCommaAndStartsANewLine() {
+        assertEquals("[\n  { \"a\": 1 },\n  { }|\n]", inserted("[\n  { \"a\": 1 }|\n]"))
+    }
+
+    @Test
+    fun insertingOnALineAfterAnItemWithoutCommaAddsIt() {
+        assertEquals("[\n  { \"a\": 1 },\n  { }|\n]", inserted("[\n  { \"a\": 1 }\n  |\n]"))
+    }
+
+    @Test
+    fun insertingAfterACommaOrIntoAnEmptyArrayAddsNoComma() {
+        assertEquals("[\n  1,\n  { }|\n]", inserted("[\n  1,\n  |\n]"))
+        assertEquals("[{ }|]", inserted("[|]"))
+    }
+
+    @Test
+    fun insertingBeforeAnItemAddsTheCommaAfter() {
+        assertEquals("[\n  { }|,{ \"a\": 1 }\n]", inserted("[\n  |{ \"a\": 1 }\n]"))
+    }
+
+    @Test
+    fun insertingBetweenTwoItemsKeepsTheJsonValid() {
+        val text = HELLO.replace(
+            "{ \"type\": \"text\", \"label\": \"Hello\" }",
+            "{ \"type\": \"text\", \"label\": \"Hello\" },\n    { \"type\": \"text\", \"label\": \"Bye\" }"
+        )
+        val at = text.indexOf("\"Hello\" }") + "\"Hello\" }".length
+        Snippets.all.filterNot { it.formField }.forEach { snippet ->
+            val insertion = Snippets.insertion(text, at, at, snippet.json)
+            val result = text.replaceRange(insertion.start, insertion.end, insertion.text)
+            assertEquals(emptyList<EditorIssue>(), checker.check(result), snippet.label)
+        }
+    }
+
+    @Test
+    fun theFormSnippetDoesSomethingWhenSent() {
+        assertTrue(Snippets.all.single { it.label == "Form" }.json.contains("\"action\""))
+    }
+
     private companion object {
         val HELLO = """
             {

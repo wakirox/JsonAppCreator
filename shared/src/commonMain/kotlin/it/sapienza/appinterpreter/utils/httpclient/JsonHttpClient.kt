@@ -64,6 +64,8 @@ class JsonHttpClient(
         body: JsonObject?,
         headers: Map<String, String> = emptyMap()
     ): JsonObject {
+        // The keys this request carries: a 401 or 403 from their origin means one of them was refused.
+        val keyNames = ApiKeyPlaceholders.names(url) + headers.values.flatMap(ApiKeyPlaceholders::names)
         val resolved = resolveUrl(url)
         val resolvedHeaders = headers.mapValues { (_, value) -> resolveHeader(value) }
         val missing = ApiKeyPlaceholders.names(resolved) + resolvedHeaders.values.flatMap(ApiKeyPlaceholders::names)
@@ -121,6 +123,9 @@ class JsonHttpClient(
                 redirects++
                 continue
             }
+            if (code in KEY_REFUSED_STATUSES && keyNames.isNotEmpty() && !leftInitialOrigin) {
+                throw RejectedApiKeyException(code, keyNames)
+            }
             if (!response.status.isSuccess()) throw HttpStatusException(code)
             val bytes = response.bodyAsChannel().readBuffer(maxResponseBytes + 1).readByteArray()
             if (bytes.size > maxResponseBytes) {
@@ -154,6 +159,7 @@ class JsonHttpClient(
         private const val MAX_REDIRECTS = 5
         private val REDIRECT_STATUSES = setOf(301, 302, 303, 307, 308)
         private val ALLOWED_PROTOCOLS = setOf("http", "https")
+        private val KEY_REFUSED_STATUSES = setOf(401, 403)
 
         internal fun sameOrigin(a: Url, b: Url): Boolean =
             a.protocol == b.protocol && a.host.equals(b.host, ignoreCase = true) && a.port == b.port
@@ -169,4 +175,7 @@ class JsonHttpClient(
 }
 
 /** The server answered with [status], which isn't a success. */
-class HttpStatusException(val status: Int) : IOException("Request failed with $status")
+open class HttpStatusException(val status: Int) : IOException("Request failed with $status")
+
+/** A 401 or 403 for a request that carried the API keys [names]: one of them is wrong or no longer valid. */
+class RejectedApiKeyException(status: Int, val names: Set<String>) : HttpStatusException(status)

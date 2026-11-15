@@ -50,6 +50,7 @@ import it.sapienza.appinterpreter.runtime.usecase.TextPackUseCase
 import it.sapienza.appinterpreter.runtime.usecase.UpdateItemUseCase
 import it.sapienza.appinterpreter.storage.Photos
 import it.sapienza.appinterpreter.utils.httpclient.HttpStatusException
+import it.sapienza.appinterpreter.utils.httpclient.RejectedApiKeyException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -85,7 +86,7 @@ class ScreenViewModel(
     private val updateItem: UpdateItemUseCase,
     private val deleteItems: DeleteItemsUseCase,
     private val openLink: OpenLinkUseCase,
-    findMissingApiKeys: FindMissingApiKeysUseCase,
+    private val findMissingApiKeys: FindMissingApiKeysUseCase,
     loadScreen: LoadScreenUseCase,
     private val strings: RuntimeStrings,
     private val pdfPage: PdfPageUseCase = PdfPageUseCase(),
@@ -142,16 +143,25 @@ class ScreenViewModel(
 
     val forms =
         FormsState(saved, initialFormValues, submitForm, { form -> resolve(form.action)?.event is SaveData }, strings)
-    val lists = ListsState(viewModelScope, loadListItems, strings)
+    val lists = ListsState(viewModelScope, loadListItems, strings) { keyRejected() }
 
     private val missing = MutableStateFlow(screen?.let { findMissingApiKeys() })
+    private val rejected = MutableStateFlow(false)
 
-    /** The app's API keys this phone lacks: asked for before the screen shows, unless skipped. */
+    /**
+     * The app's API keys to ask for: those this phone lacks, or all of them once a service refused one ([keysRejected]).
+     * The app can't work without them, so the platform shows a screen to add them in place of the app; saving them
+     * restarts the app.
+     */
     val missingKeys: StateFlow<FindMissingApiKeysUseCase.Missing?> = missing.asStateFlow()
 
-    /** The keys stay missing: the app opens without them, and what needs them can't load. */
-    fun skipKeys() {
-        missing.value = null
+    /** True when [missingKeys] are asked for again because a service refused one. */
+    val keysRejected: StateFlow<Boolean> = rejected.asStateFlow()
+
+    private fun keyRejected() {
+        val all = findMissingApiKeys.all() ?: return
+        rejected.value = true
+        missing.value = all
     }
 
     private val busy = MutableStateFlow(false)
@@ -361,6 +371,10 @@ class ScreenViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
+                if (e is RejectedApiKeyException) {
+                    keyRejected()
+                    return@launch
+                }
                 val message =
                     (e as? MissingValueException)?.let { strings.valueMissing(it.path) }
                         ?: (e as? HttpStatusException)?.let { strings.requestFailed(it.status) }
