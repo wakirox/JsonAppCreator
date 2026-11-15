@@ -461,6 +461,8 @@ object JsonText {
 
 /** How the app prints JSON numbers, which are kept as written when read. */
 object JsonNumbers {
+    private const val MAX_EXPONENT = Long.MAX_VALUE / 2
+
     /** Whether [literal] has a fraction or an exponent. */
     fun isDecimal(literal: String) = (literal.firstOrNull()?.let { it == '-' || it.isDigit() } == true) &&
         literal.any { it == '.' || it == 'e' || it == 'E' }
@@ -492,6 +494,8 @@ object JsonNumbers {
         } else {
             0L
         }
+        // Beyond this the scale maths below could overflow a Long, so the literal stays as written.
+        if (exponent > MAX_EXPONENT || exponent < -MAX_EXPONENT) return literal
         val whole = mantissa.substringBefore('.')
         val fraction = if ('.' in mantissa) mantissa.substringAfter('.') else ""
         val unscaled = (whole + fraction).trimStart('0').ifEmpty { "0" }
