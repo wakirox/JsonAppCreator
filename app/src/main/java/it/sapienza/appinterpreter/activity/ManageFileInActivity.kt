@@ -20,6 +20,7 @@ import it.sapienza.appinterpreter.ui.ReceivedApp
 import it.sapienza.appinterpreter.ui.ReceivedAppDialog
 import it.sapienza.appinterpreter.utils.AppLibrary
 import it.sapienza.appinterpreter.utils.DomainController
+import it.sapienza.appinterpreter.utils.PrivateStorage
 import it.sapienza.appinterpreter.utils.SharedApps
 import it.sapienza.appinterpreter.utils.of
 import it.sapienza.appinterpreter.validation.ConfigurationValidator
@@ -86,7 +87,8 @@ class ManageFileInActivity : AppCompatActivity() {
 
     private fun handleIntent() {
         try {
-            val text = intent?.data?.let(contentResolver::openInputStream)?.use {
+            val uri = intent?.data?.takeUnless { PrivateStorage.isPrivateFileUri(this, it) }
+            val text = uri?.let(contentResolver::openInputStream)?.use {
                 BufferedReader(InputStreamReader(it)).readText()
             } ?: throw IllegalArgumentException(getString(R.string.file_unreadable))
 

@@ -79,6 +79,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         if (savedInstanceState != null) alerts.activityRecreated()
 
+        // Shortcuts pinned by earlier versions still target MainActivity (the system keeps their intent until
+        // HomeActivity refreshes them), so this branch stays; new shortcuts go through HomeActivity.
         // Opened from a home-screen shortcut: that saved app becomes the current one, before the screen loads it.
         if (savedInstanceState == null) {
             intent.getStringExtra(HomeShortcuts.EXTRA_APP_ID)?.let { id ->

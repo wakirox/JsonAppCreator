@@ -164,20 +164,54 @@ final class Shell: ObservableObject {
             notice = Notice(title: "Nothing to paste", message: "The clipboard is empty: copy the answer in your AI app first")
             return
         }
-        guard let json = kit.extractJson(answer: answer) else {
-            let link = answer.hasPrefix("http") && !answer.contains(" ")
-            notice = Notice(
-                title: "No app to open",
-                message: link
-                    ? "That's a link to the chat, not the AI's answer. In your AI app, copy the answer that contains the JSON, then paste it here."
-                    : "What you pasted has no JSON app in it. In your AI app, copy the answer that contains the JSON, then paste it here."
-            )
+        if let json = kit.extractJson(answer: answer) {
+            path.append(.editor(EditorSeed(
+                title: String(localized: "From your AI app"), text: kit.prettyPrinted(json: json),
+                source: String(localized: "Pasted from your AI app"), fromAIApp: true
+            )))
             return
         }
-        path.append(.editor(EditorSeed(
-            title: String(localized: "From your AI app"), text: kit.prettyPrinted(json: json),
-            source: String(localized: "Pasted from your AI app"), fromAIApp: true
-        )))
+        if let shareLink = kit.findShareLink(text: answer) {
+            openSharedChat(link: shareLink)
+            return
+        }
+        let link = answer.hasPrefix("http") && !answer.contains(" ")
+        notice = Notice(
+            title: "No app to open",
+            message: link
+                ? "That's a link to the chat, not the AI's answer. In your AI app, copy the answer that contains the JSON, then paste it here."
+                : "What you pasted has no JSON app in it. In your AI app, copy the answer that contains the JSON, then paste it here."
+        )
+    }
+
+    func readShareLink(_ link: String) async -> String? {
+        func bundled(_ name: String) -> String {
+            Bundle.main.url(forResource: name, withExtension: "json").flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? ""
+        }
+        let checklist = bundled("v3_ai_checklist")
+        let signUp = bundled("v3_race_signup")
+        let restList = bundled("v3_open_access_art")
+        let uncheckedKit = Unchecked(value: kit)
+        return await Task.detached(priority: .userInitiated) {
+            uncheckedKit.value.readShareLink(link: link, checklist: checklist, signUpForm: signUp, restList: restList)
+        }.value
+    }
+
+    private func openSharedChat(link: String) {
+        let service = kit.shareLinkService(link: link)
+        Task {
+            if let json = await readShareLink(link) {
+                path.append(.editor(EditorSeed(
+                    title: String(localized: "From your AI app"), text: kit.prettyPrinted(json: json),
+                    source: String(localized: "Read from \(service) shared chat"), fromAIApp: true
+                )))
+            } else {
+                notice = Notice(
+                    title: "Couldn't read the shared chat",
+                    message: "Copy the AI's JSON answer directly in your AI app, then paste it here."
+                )
+            }
+        }
     }
 
     // MARK: Files

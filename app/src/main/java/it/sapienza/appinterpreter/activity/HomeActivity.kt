@@ -111,7 +111,19 @@ class HomeActivity : AppCompatActivity() {
         setTheme(R.style.AppTheme_Compose)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        if (savedInstanceState == null) HomeShortcuts(this).refreshPinned()
+        if (savedInstanceState == null) {
+            HomeShortcuts(this).refreshPinned()
+            intent.getStringExtra(HomeShortcuts.EXTRA_APP_ID)?.let { id ->
+                val saved = AppLibrary.of(this).get(id)
+                if (saved != null) {
+                    DomainController.setJsonFile(saved.json, this, saved.configurationId)
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                    return
+                }
+                Toast.makeText(this, R.string.app_deleted, Toast.LENGTH_LONG).show()
+            }
+        }
         setContent {
             AppTheme {
                 var deleting by remember { mutableStateOf<AppLibrary.SavedApp?>(null) }

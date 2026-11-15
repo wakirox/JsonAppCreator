@@ -16,6 +16,7 @@ struct EditorView: View {
     @State private var pasting = false
     @State private var toast: String?
     @State private var checks = Checks()
+    @State private var suggestionResult: Suggestions?
     @FocusState private var focused: Bool
 
     init(seed: EditorSeed) {
@@ -39,7 +40,12 @@ struct EditorView: View {
                     if let straight = straightenTyped(old: old, new: new) { text = straight }
                 }
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { problemBar }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                suggestionBar
+                problemBar
+            }
+        }
         .overlay(alignment: .bottom) {
             if let toast {
                 Text(toast)
@@ -49,6 +55,7 @@ struct EditorView: View {
                     .transition(.opacity)
             }
         }
+        .task(id: SuggestionKey(text: text, cursor: focused ? cursorOffset : nil)) { await refreshSuggestions() }
         .navigationTitle(seed.title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -134,6 +141,39 @@ struct EditorView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16).padding(.vertical, 8)
             .background(.secondary.opacity(0.15))
+    }
+
+    @ViewBuilder
+    private var suggestionBar: some View {
+        if focused, cursorOffset != nil, let found = suggestionResult, !found.items.isEmpty {
+            VStack(spacing: 0) {
+                Divider()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        if let heading = found.heading {
+                            Text("\(heading):")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
+                        }
+                        ForEach(Array(found.items.enumerated()), id: \.offset) { _, item in
+                            Button {
+                                apply(item)
+                            } label: {
+                                Text(item.required ? "\(item.label)*" : item.label)
+                                    .font(.system(size: 12, weight: item.required ? .semibold : .regular, design: .monospaced))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Color(.secondarySystemFill), in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                }
+                .background(.bar)
+            }
+        }
     }
 
     @ViewBuilder
@@ -266,11 +306,53 @@ struct EditorView: View {
 
     private func paste(_ answer: String?) {
         pasting = false
-        guard let answer, let json = shell.kit.extractJson(answer: answer) else {
+        guard let answer else {
             show(String(localized: "No JSON in the clipboard: copy the AI's answer first"))
             return
         }
-        pasted = json
+        if let json = shell.kit.extractJson(answer: answer) {
+            pasted = json
+            return
+        }
+        if let shareLink = shell.kit.findShareLink(text: answer) {
+            Task {
+                if let json = await shell.readShareLink(shareLink) {
+                    pasted = json
+                } else {
+                    show(String(localized: "Couldn't read that shared chat: copy the AI's answer first"))
+                }
+            }
+            return
+        }
+        show(String(localized: "No JSON in the clipboard: copy the AI's answer first"))
+    }
+
+    /// Looks up the suggestions off the main thread once typing pauses; a newer text or cursor cancels this task.
+    private func refreshSuggestions() async {
+        guard let cursor = focused ? cursorOffset : nil else {
+            suggestionResult = nil
+            return
+        }
+        let (kit, json) = (Unchecked(value: shell.kit), text)
+        try? await Task.sleep(for: .milliseconds(150))
+        if Task.isCancelled { return }
+        let found = await Task.detached(priority: .userInitiated) {
+            Unchecked(value: kit.value.suggestions(json: json, cursor: Int32(cursor)))
+        }.value
+        if !Task.isCancelled { suggestionResult = found.value }
+    }
+
+    private var cursorOffset: Int? {
+        guard let selection, case .selection(let range) = selection.indices, range.isEmpty else { return nil }
+        return text.utf16.distance(from: text.startIndex, to: range.lowerBound)
+    }
+
+    private func apply(_ suggestion: Suggestion) {
+        let from = index(Int(suggestion.start))
+        let to = index(Int(suggestion.end))
+        guard from <= to else { return }
+        text.replaceSubrange(from..<to, with: suggestion.insert)
+        selection = TextSelection(insertionPoint: index(Int(suggestion.start) + Int(suggestion.cursor)))
     }
 
     private func index(_ offset: Int) -> String.Index {
@@ -306,4 +388,9 @@ func straightenTyped(old: String, new: String) -> String? {
     guard typed.contains(where: { $0 == "\u{201C}" || $0 == "\u{201D}" }) else { return nil }
     let fixed = typed.replacingOccurrences(of: "\u{201C}", with: "\"").replacingOccurrences(of: "\u{201D}", with: "\"")
     return String(new[..<from]) + fixed + String(new[to...])
+}
+
+private struct SuggestionKey: Equatable {
+    let text: String
+    let cursor: Int?
 }

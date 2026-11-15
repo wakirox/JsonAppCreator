@@ -72,6 +72,39 @@ enum PhotoStore {
         try? FileManager.default.removeItem(at: copies.appending(path: name))
     }
 
+    /// Photos younger than this are never swept: one just picked may not be saved in any item yet.
+    static let sweepGrace: TimeInterval = 3600
+
+    /// The names among `files` (name, modification date) that are safe to delete: unreferenced `.jpg` files older than
+    /// `grace`. With nothing referenced the sweep deletes nothing, as that more likely means the references couldn't
+    /// be read than that every photo is unused.
+    static func sweepable(
+        _ files: [(name: String, modified: Date)], keeping used: Set<String>, now: Date, grace: TimeInterval = sweepGrace
+    ) -> [String] {
+        let keptNames = Set(used.compactMap(fileName))
+        guard !keptNames.isEmpty else { return [] }
+        return files.compactMap { file in
+            file.name.hasSuffix(".jpg") && !keptNames.contains(file.name) && now.timeIntervalSince(file.modified) > grace
+                ? file.name : nil
+        }
+    }
+
+    /// Deletes photo files that no saved collection item refers to any more (and that are not new).
+    static func deleteUnused(keeping used: Set<String>) {
+        let now = Date()
+        for dir in [folder, copies] {
+            guard let names = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { continue }
+            let files = names.map { name -> (name: String, modified: Date) in
+                let attributes = try? FileManager.default.attributesOfItem(atPath: dir.appending(path: name).path)
+                // Unreadable date: treat as new, so it is kept.
+                return (name, (attributes?[.modificationDate] as? Date) ?? now)
+            }
+            for name in sweepable(files, keeping: used, now: now) {
+                try? FileManager.default.removeItem(at: dir.appending(path: name))
+            }
+        }
+    }
+
     /// The picture scaled down to `side` px on its longer edge (never up), upright, as a JPEG without its metadata.
     private static func jpeg(_ source: CGImageSource, side: Int) -> Data? {
         let options: [CFString: Any] = [
