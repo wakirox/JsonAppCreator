@@ -10,7 +10,7 @@ import java.util.UUID
  */
 object TextHandover {
     private const val DIRECTORY = "incoming"
-    private const val MAX_AGE_MILLIS = 60L * 60 * 1000
+    private const val MAX_AGE_MILLIS = 24L * 60 * 60 * 1000
     private val VALID_NAME = Regex("^text-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.txt$")
 
     fun write(context: Context, text: String): String {
@@ -28,10 +28,12 @@ object TextHandover {
         val target = File(folder, name).canonicalFile
         if (input.parent != null && input.canonicalFile != target) return null
         if (target.parentFile != folder || !target.isFile) return null
+        // Reading keeps the file alive: a screen restored after process death reads it again, long after it was written.
+        target.setLastModified(System.currentTimeMillis())
         target.readText()
     }.getOrNull()
 
-    private fun pruneExpired(folder: File, now: Long = System.currentTimeMillis()) {
+    internal fun pruneExpired(folder: File, now: Long = System.currentTimeMillis()) {
         folder.listFiles()?.forEach { file ->
             if (now - file.lastModified() > MAX_AGE_MILLIS) file.delete()
         }
