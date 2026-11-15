@@ -11,6 +11,7 @@
 # Uploading the AAB to Google Play is a separate step.
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 tag="${1:-}"
 dry_run=false
 allow_missing_keys=false
@@ -40,13 +41,18 @@ git rev-parse -q --verify "refs/tags/$tag" > /dev/null && { echo "$tag already e
 ci=$(gh run list --repo "$repo" --workflow CI --commit "$commit" --json conclusion -q '[.[] | select(.conclusion == "success")] | length')
 [ "${ci:-0}" -gt 0 ] || { echo "CI hasn't passed on $commit yet" >&2; exit 1; }
 
-# Signing values go to Gradle through the environment only.
-if ! $allow_missing_keys && [ -z "${APP_CONFIG_KEYS_FILE:-}" ] && [ -z "${APP_CONFIG_KEYS_BASE64:-}" ] && [ -z "${TMDB_API_KEY:-}" ] \
-   && ! grep -q '^configApiKeysFile=' local.properties 2>/dev/null; then
-  echo "Bundled configuration keys are not set (APP_CONFIG_KEYS_FILE / APP_CONFIG_KEYS_BASE64 / TMDB_API_KEY / local.properties configApiKeysFile)." >&2
-  echo "Pass --allow-missing-keys if you intentionally want to build without bundled keys." >&2
+# Bundled API keys: checked exactly where Gradle reads them (tools/release-keys.sh). The flag below applies to this run only.
+# shellcheck source=tools/release-keys.sh
+. "$script_dir/release-keys.sh"
+keys_status=0
+check_bundled_keys "$PWD" || keys_status=$?
+[ "$keys_status" -ne 2 ] || exit 1
+if [ "$keys_status" -ne 0 ] && ! $allow_missing_keys; then
+  echo "Bundled configuration keys are not set (APP_CONFIG_KEYS_FILE / APP_CONFIG_KEYS_BASE64 / TMDB_API_KEY / Gradle property configApiKeysFile)." >&2
+  echo "Pass --allow-missing-keys if you intentionally want to build without bundled keys (this run only)." >&2
   exit 1
 fi
+# Signing values go to Gradle through the environment only.
 [ -r "$properties" ] || { echo "No signing properties at $properties" >&2; exit 1; }
 value() { grep -m1 "^$1=" "$properties" | cut -d= -f2-; }
 store_file=$(value storeFile)
