@@ -32,6 +32,7 @@ import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.cancel
 import platform.Foundation.NSBundle
 import platform.Foundation.NSData
+import platform.Foundation.NSLock
 import platform.posix.memcpy
 
 /**
@@ -82,7 +83,7 @@ class IosEngine(
             payload?.let { put(ScreenViewModel.EXTRA_SCREEN_PAYLOAD, it) }
             title?.let { put(ScreenViewModel.EXTRA_SCREEN_TITLE, it) }
         }
-        return ScreenViewModel(
+        val screen = ScreenViewModel(
             saved = SavedStateHandle(arguments),
             alerts = alerts,
             fetchJson = FetchJsonUseCase(httpClient, photos),
@@ -98,13 +99,38 @@ class IosEngine(
             loadScreen = LoadScreenUseCase(repository, strings),
             strings = strings
         )
+        locked { screens += screen }
+        return screen
     }
 
     /** Ends [screen]'s requests: call it when the screen is gone. */
-    fun dispose(screen: ScreenViewModel) = screen.viewModelScope.cancel()
+    fun dispose(screen: ScreenViewModel) {
+        locked { screens -= screen }
+        screen.viewModelScope.cancel()
+    }
 
-    /** Closes the app session's underlying Darwin HTTP client and invalidates its URLSession. */
-    fun close() = httpClient.close()
+    /**
+     * Ends every screen's requests, then closes the app session's underlying Darwin HTTP client and invalidates its
+     * URLSession: cancelling first means no in-flight request can reach a closed client.
+     */
+    fun close() {
+        val open = locked { screens.toList().also { screens.clear() } }
+        open.forEach { it.viewModelScope.cancel() }
+        httpClient.close()
+    }
+
+    // Screens still showing; close() can run from any thread (a Swift deinit).
+    private val screens = mutableListOf<ScreenViewModel>()
+    private val lock = NSLock()
+
+    private fun <T> locked(block: () -> T): T {
+        lock.lock()
+        try {
+            return block()
+        } finally {
+            lock.unlock()
+        }
+    }
 }
 
 @OptIn(ExperimentalForeignApi::class)

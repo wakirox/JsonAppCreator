@@ -16,6 +16,7 @@ struct EditorView: View {
     @State private var pasting = false
     @State private var toast: String?
     @State private var checks = Checks()
+    @State private var suggestionResult: Suggestions?
     @FocusState private var focused: Bool
 
     init(seed: EditorSeed) {
@@ -54,6 +55,7 @@ struct EditorView: View {
                     .transition(.opacity)
             }
         }
+        .task(id: SuggestionKey(text: text, cursor: focused ? cursorOffset : nil)) { await refreshSuggestions() }
         .navigationTitle(seed.title)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -143,36 +145,33 @@ struct EditorView: View {
 
     @ViewBuilder
     private var suggestionBar: some View {
-        if focused, let cursor = cursorOffset {
-            let found = shell.kit.suggestions(json: text, cursor: Int32(cursor))
-            if !found.items.isEmpty {
-                VStack(spacing: 0) {
-                    Divider()
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            if let heading = found.heading {
-                                Text("\(heading):")
-                                    .font(.caption.weight(.medium))
-                                    .foregroundStyle(.secondary)
-                            }
-                            ForEach(Array(found.items.enumerated()), id: \.offset) { _, item in
-                                Button {
-                                    apply(item)
-                                } label: {
-                                    Text(item.required ? "\(item.label)*" : item.label)
-                                        .font(.system(size: 12, weight: item.required ? .semibold : .regular, design: .monospaced))
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 5)
-                                        .background(Color(.secondarySystemFill), in: Capsule())
-                                }
-                                .buttonStyle(.plain)
-                            }
+        if focused, cursorOffset != nil, let found = suggestionResult, !found.items.isEmpty {
+            VStack(spacing: 0) {
+                Divider()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        if let heading = found.heading {
+                            Text("\(heading):")
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(.secondary)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+                        ForEach(Array(found.items.enumerated()), id: \.offset) { _, item in
+                            Button {
+                                apply(item)
+                            } label: {
+                                Text(item.required ? "\(item.label)*" : item.label)
+                                    .font(.system(size: 12, weight: item.required ? .semibold : .regular, design: .monospaced))
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Color(.secondarySystemFill), in: Capsule())
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
-                    .background(.bar)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                 }
+                .background(.bar)
             }
         }
     }
@@ -328,6 +327,21 @@ struct EditorView: View {
         show(String(localized: "No JSON in the clipboard: copy the AI's answer first"))
     }
 
+    /// Looks up the suggestions off the main thread once typing pauses; a newer text or cursor cancels this task.
+    private func refreshSuggestions() async {
+        guard let cursor = focused ? cursorOffset : nil else {
+            suggestionResult = nil
+            return
+        }
+        let (kit, json) = (Unchecked(value: shell.kit), text)
+        try? await Task.sleep(for: .milliseconds(150))
+        if Task.isCancelled { return }
+        let found = await Task.detached(priority: .userInitiated) {
+            Unchecked(value: kit.value.suggestions(json: json, cursor: Int32(cursor)))
+        }.value
+        if !Task.isCancelled { suggestionResult = found.value }
+    }
+
     private var cursorOffset: Int? {
         guard let selection, case .selection(let range) = selection.indices, range.isEmpty else { return nil }
         return text.utf16.distance(from: text.startIndex, to: range.lowerBound)
@@ -374,4 +388,9 @@ func straightenTyped(old: String, new: String) -> String? {
     guard typed.contains(where: { $0 == "\u{201C}" || $0 == "\u{201D}" }) else { return nil }
     let fixed = typed.replacingOccurrences(of: "\u{201C}", with: "\"").replacingOccurrences(of: "\u{201D}", with: "\"")
     return String(new[..<from]) + fixed + String(new[to...])
+}
+
+private struct SuggestionKey: Equatable {
+    let text: String
+    let cursor: Int?
 }

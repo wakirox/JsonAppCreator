@@ -1,6 +1,9 @@
 import AppkinShared
 import SwiftUI
 
+@MainActor
+private enum PhotoSweep { static var done = false }
+
 /// The navigation stack from Home, and the sheets any screen can raise: API keys, a received file, messages.
 struct ShellRoot: View {
     @StateObject private var shell = Shell()
@@ -35,8 +38,12 @@ struct ShellRoot: View {
             Text(notice.message)
         }
         .task {
-            let kept = shell.kit.keptPhotoReferences()
-            Task.detached(priority: .utility) { PhotoStore.deleteUnused(keeping: kept) }
+            // Once per launch, whatever the number of scenes or `.task` runs.
+            if !PhotoSweep.done {
+                PhotoSweep.done = true
+                let kept = shell.kit.keptPhotoReferences()
+                Task.detached(priority: .utility) { PhotoStore.deleteUnused(keeping: kept) }
+            }
             launchHooks()
         }
         .environmentObject(shell)
