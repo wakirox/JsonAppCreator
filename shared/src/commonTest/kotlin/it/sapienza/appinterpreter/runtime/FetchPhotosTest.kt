@@ -11,6 +11,7 @@ import it.sapienza.appinterpreter.storage.PhotoReader
 import it.sapienza.appinterpreter.utils.httpclient.JsonHttpClient
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
@@ -42,5 +43,22 @@ class FetchPhotosTest {
         )
         assertEquals("Tile", sent!!.getValue("title").jsonPrimitive.content)
         assertEquals("appkin-photo is just text here", sent!!.getValue("note").jsonPrimitive.content)
+    }
+
+    @Test
+    fun getAndDeleteRequestsDoNotReadLocalPhotos() = runTest {
+        var photoReadAttempted = false
+        val photos = PhotoReader {
+            photoReadAttempted = true
+            byteArrayOf(1, 2, 3)
+        }
+        val bodylessEngine = MockEngine { respond("{}") }
+        val fetch = FetchJsonUseCase(JsonHttpClient(bodylessEngine, "Appkin/test"), photos)
+        val payload = JsonText.parse("""{ "photo": "appkin-photo:a.jpg" }""") as JsonObject
+
+        fetch(RESTService(url = "https://example.com/ideas", method = CallServiceMethod.get), payload)
+        fetch(RESTService(url = "https://example.com/ideas/1", method = CallServiceMethod.delete), payload)
+
+        assertFalse(photoReadAttempted)
     }
 }
