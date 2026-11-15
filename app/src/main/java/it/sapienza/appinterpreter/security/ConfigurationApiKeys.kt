@@ -1,6 +1,7 @@
 package it.sapienza.appinterpreter.security
 
 import android.content.Context
+import it.sapienza.appinterpreter.utils.AppLibrary
 import it.sapienza.appinterpreter.utils.DomainController
 
 /** The configurations' API keys on Android: [ConfigurationKeys] on the Keystore-encrypted [EncryptedApiKeyStore]. */
@@ -26,7 +27,10 @@ object ConfigurationApiKeys {
     fun saveForCurrentConfiguration(json: String, values: Map<String, String>) =
         keys.saveForCurrentConfiguration(json, values)
 
-    fun delete(configurationId: String, json: String) = keys.delete(configurationId, json)
+    /** Frees the keys of an app that was deleted or replaced; before [initialize] there are none to free. */
+    fun release(removed: AppLibrary.SavedApp, replacement: AppLibrary.SavedApp?, library: AppLibrary) {
+        if (::keys.isInitialized) ReleaseSavedAppKeysUseCase(keys)(removed, replacement, library)
+    }
 
     fun availableNamesForCurrentConfiguration(json: String): Set<String> =
         keys.availableNamesForCurrentConfiguration(json)
